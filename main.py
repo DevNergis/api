@@ -106,8 +106,28 @@ async def skinrender(name: str):
     """ % (name, name), status_code=200)
 
 #file api
+#passwd 구현
 @app.get("/file/download/{file_id}/")
-async def file_download(file_id: str, file: Union[str, None] = None):
+async def file_download(file_id: str, file: Union[str, None] = None, password: Union[str, None] = "password"):
+    redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
+    password_db = redis_file_db_password.get(file_id).decode('utf-8')
+    password_db = bytes.fromhex(password_db).decode('utf-8')
+    password_db = base64.b64decode(password_db).decode("utf-8")
+
+    if password == "password":
+        if password == password_db:
+            pass
+        else:
+            return HTMLResponse("Need Password", status_code=403)
+    else:
+        if password == password_db:
+            pass
+        else:
+            if password_db == "password":
+                return HTMLResponse("No Password Required", status_code=403)
+            else:
+                return HTMLResponse("Wrong Password", status_code=403)
+
     if file == None:
         redis_file_db_name = redis.StrictRedis(host='localhost', port=6379, db=0)
         file_name = redis_file_db_name.get(file_id).decode('utf-8')
@@ -120,7 +140,7 @@ async def file_download(file_id: str, file: Union[str, None] = None):
         return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
 
 @app.post("/file/upload/")
-async def file_upload(files: List[UploadFile] = File()):
+async def file_upload(files: List[UploadFile] = File(), password: Union[str, None] = None):
     file_size_list = list()
     file_uuid_list = list()
     file_name_list = list()
@@ -128,9 +148,21 @@ async def file_upload(files: List[UploadFile] = File()):
     file_direct_list = list()
 
     for file in files:
-
         file_uuid = str(uuid.uuid4())
         file_name = base64.b64encode(bytes(file.filename, 'utf-8')).hex()
+
+        if password != None:
+            password = base64.b64encode(bytes(password, 'utf-8')).hex()
+
+            redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
+            redis_file_db_password.set(file_uuid, password)
+            redis_file_db_password.close()
+        else:
+            password = base64.b64encode(bytes("password", 'utf-8')).hex()
+
+            redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
+            redis_file_db_password.set(file_uuid, password)
+            redis_file_db_password.close()
 
         redis_file_db_name = redis.StrictRedis(host='localhost', port=6379, db=0)
         redis_file_db_name.set(file_uuid, file_name)
@@ -146,5 +178,9 @@ async def file_upload(files: List[UploadFile] = File()):
         file_name_list.append(file.filename)
         file_url_list.append(f"{SERVER_URL}/file/download/{file_uuid}")
         file_direct_list.append(f"{SERVER_URL}/file/download/{file_uuid}/?file={file.filename}")
+        if password == None:
+            password_status = "No"
+        else:
+            password_status = "Yes"
 
-    return ORJSONResponse(content={"file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)
+    return ORJSONResponse(content={"passworld": password_status, "file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)
