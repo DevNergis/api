@@ -7,38 +7,10 @@ from fastapi.responses import *
 from yt_dlp import YoutubeDL
 from pydantic import BaseModel
 from io import BytesIO
+from function import *
 import redis, base64, dotenv, requests, uuid
 
 app = FastAPI(title="FDZZ API", description="FDZZ API", version="5.0.0", default_response_class=ORJSONResponse)
-
-# 공용
-FILE_PATH = dotenv.get_key(".env", "FILE_PATH")
-OPEN_NEIS_API_KEY = dotenv.get_key(".env", "OPEN_NEIS_API_KEY")
-YDL_OPTIONS = dotenv.get_key(".env", "YDL_OPTIONS")
-HEADERS = dotenv.get_key(".env", "HEADERS")
-SERVER_URL = dotenv.get_key(".env", "SERVER_URL")
-DATE = datetime.now().strftime('%Y%m%d')
-def YDL_URL(url):
-    with YoutubeDL(YDL_OPTIONS) as ydl:
-        info = ydl.extract_info(url, download=False)
-
-    URL = info['formats'][0]['url']
-    return URL
-def YDL_cache(URL: str, NAME: str):
-    with requests.get(URL, stream=True, headers=HEADERS) as file_request:
-        content = BytesIO()
-        
-        for chunk in file_request.iter_content(chunk_size=1*1024*1024):
-            content.write(chunk)
-
-        with open(f"{NAME}", "wb") as file_save:
-            file_save.write(content.getbuffer())
-        
-        content.seek(0)
-
-    return URL, NAME
-# END
-
 
 @app.get("/")
 async def main():
@@ -134,25 +106,18 @@ async def skinrender(name: str):
     """ % (name, name), status_code=200)
 
 #file api
-@app.get("/file/direct/{file_name}")
-async def file_direct(file_name: str):
-    file= base64.b64encode(bytes(file_name, 'utf-8'))
+@app.get("/file/download/{file_id}/")
+async def file_download(file_id: str, file: Union[str, None] = None):
+    if file == None:
+        redis_file_db_name = redis.StrictRedis(host='localhost', port=6379, db=0)
+        file_name = redis_file_db_name.get(file_id).decode('utf-8')
+        file_name = bytes.fromhex(file_name).decode('utf-8')
+        file_name = base64.b64decode(file_name).decode("utf-8")
+        redis_file_db_name.close()
 
-    return FileResponse(f"{FILE_PATH}/{file}", filename=file_name)
-
-@app.get("/file/download/")
-async def file_downlload_html():
-    return FileResponse("src/download.html")
-
-@app.get("/file/download/{file_id}")
-async def file_download(file_id: str):
-    rd = redis.StrictRedis(host='localhost', port=6379, db=0)
-
-    file = rd.get(file_id).decode('utf-8')
-    file_name = bytes.fromhex(file).decode('utf-8')
-    file_name = base64.b64decode(file_name).decode("utf-8")
-
-    return FileResponse(f"{FILE_PATH}/{file}", filename=file_name)
+        return FileResponse(f"{FILE_PATH}/{file_id}", filename=file_name)
+    else:
+        return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
 
 @app.post("/file/upload/")
 async def file_upload(files: List[UploadFile] = File()):
@@ -160,16 +125,18 @@ async def file_upload(files: List[UploadFile] = File()):
     file_uuid_list = list()
     file_name_list = list()
     file_url_list = list()
+    file_direct_list = list()
 
     for file in files:
 
         file_uuid = str(uuid.uuid4())
         file_name = base64.b64encode(bytes(file.filename, 'utf-8')).hex()
 
-        rd = redis.StrictRedis(host='localhost', port=6379, db=0)
-        rd.set(file_uuid, file_name)
+        redis_file_db_name = redis.StrictRedis(host='localhost', port=6379, db=0)
+        redis_file_db_name.set(file_uuid, file_name)
+        redis_file_db_name.close()
 
-        with open(f"{FILE_PATH}/{file_name}", "wb") as file_save:
+        with open(f"{FILE_PATH}/{file_uuid}", "wb") as file_save:
             file_save.write(file.file.read(20*1024*1024))
 
         file.file.close()
@@ -178,5 +145,6 @@ async def file_upload(files: List[UploadFile] = File()):
         file_uuid_list.append(file_uuid)
         file_name_list.append(file.filename)
         file_url_list.append(f"{SERVER_URL}/file/download/{file_uuid}")
+        file_direct_list.append(f"{SERVER_URL}/file/download/{file_uuid}/?file={file.filename}")
 
-    return ORJSONResponse(content={"file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list}, status_code=200)
+    return ORJSONResponse(content={"file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)
