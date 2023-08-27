@@ -134,7 +134,17 @@ async def skinrender(name: str):
     """ % (name, name), status_code=200)
 
 #file api
+@app.get("/file/direct/{file_name}")
+async def file_direct(file_name: str):
+    file= base64.b64encode(bytes(file_name, 'utf-8'))
+
+    return FileResponse(f"{FILE_PATH}/{file}", filename=file_name)
+
 @app.get("/file/download/")
+async def file_downlload_html():
+    return FileResponse("src/download.html")
+
+@app.get("/file/download/{file_id}")
 async def file_download(file_id: str):
     rd = redis.StrictRedis(host='localhost', port=6379, db=0)
 
@@ -167,6 +177,6 @@ async def file_upload(files: List[UploadFile] = File()):
         file_size_list.append(file.size)
         file_uuid_list.append(file_uuid)
         file_name_list.append(file.filename)
-        file_url_list.append(f"{SERVER_URL}/file/download?file_id={file_uuid}")
+        file_url_list.append(f"{SERVER_URL}/file/download/{file_uuid}")
 
     return ORJSONResponse(content={"file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list}, status_code=200)
