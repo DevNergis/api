@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <title>test</title>
+        <link rel="shortcut icon" href="https://fastapi.tiangolo.com/img/favicon.png">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <div class="_">
+            <div class="main" id="main">
+                <h1 id="api">API</h1>
+                <h2 id="run-to-fastapi">RUN TO FASTAPI</h2>
+                <div class="label">
+                    <label for="docs">
+                        <div class="btn-upload"><a rel="noopener" href="docs" target="_blank">Docs</a></div>
+                    </label>
+
+                    <label for="redoc">
+                        <div class="btn-upload"><a rel="noopener" href="redoc" target="_blank">Redoc</a></div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="file">
+
+                <form action="/file/upload/" enctype="multipart/form-data" method="post">
+
+                    <!-- 버튼 -->
+                    <div class="label">
+
+                        <label for="file">
+                            <div class="btn-upload">올릴 파일 선택</div>
+                            <!-- input -->
+                            <input class="upload" name="files" type="file" id="file" multiple>
+                        </label>
+
+                        <label for="submit">
+                            <div class="btn-upload">선택 파일 올리기</div>
+                            <!-- input -->
+                            <input type="submit" id="submit">
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
