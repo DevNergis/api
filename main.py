@@ -35,14 +35,14 @@ class mealServiceDietInfo_(BaseModel):
 @app.post("/api/school/meal")
 async def mealServiceDietInfo(body: mealServiceDietInfo_):
     url = f"https://open.neis.go.kr/hub/schoolInfo?KEY={OPEN_NEIS_API_KEY}&Type=json&pIndex=1&pSize=10&SCHUL_NM={body.SchoolName}"
-    request = requests.get(url=url, headers=HEADERS)
+    request = requests.get(url=url)
     r = orjson.loads(request.text)
     rr = r['schoolInfo'][-1]
     rrr = rr['row'][-1]
     ATPT_OFCDC_SC_CODE = rrr['ATPT_OFCDC_SC_CODE']
     SD_SCHUL_CODE = rrr['SD_SCHUL_CODE']
     url = f"https://open.neis.go.kr/hub/mealServiceDietInfo?KEY={OPEN_NEIS_API_KEY}&Type=json&pIndex=1&pSize=10&ATPT_OFCDC_SC_CODE={ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE={SD_SCHUL_CODE}&MLSV_YMD={DATE}"
-    request = requests.get(url=url, headers=HEADERS)
+    request = requests.get(url=url)
     if request.text == """{"RESULT":{"CODE":"INFO-200","MESSAGE":"해당하는 데이터가 없습니다."}}""":
         return ORJSONResponse(content={"RESULT":{"CODE":"INFO-200","MESSAGE":"해당하는 데이터가 없습니다."}}, status_code=200)
     else:
@@ -106,7 +106,6 @@ async def skinrender(name: str):
     """ % (name, name), status_code=200)
 
 #file api
-#passwd 구현
 @app.get("/file/download/{file_id}/")
 async def file_download(file_id: str, file: Union[str, None] = None, password: Union[str, None] = "password"):
     redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
@@ -178,9 +177,58 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         file_name_list.append(file.filename)
         file_url_list.append(f"{SERVER_URL}/file/download/{file_uuid}")
         file_direct_list.append(f"{SERVER_URL}/file/download/{file_uuid}/?file={file.filename}")
-        if password == None:
+        if password == "password":
             password_status = "No"
         else:
             password_status = "Yes"
 
     return ORJSONResponse(content={"passworld": password_status, "file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)
+#end
+
+html = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+        <h1>WebSocket Chat</h1>
+        <form action="" onsubmit="sendMessage(event)">
+            <input type="text" id="messageText" autocomplete="off"/>
+            <button>Send</button>
+        </form>
+        <ul id='messages'>
+        </ul>
+        <script>
+            var ws = new WebSocket("ws://localhost:8080/ws");
+            ws.onmessage = function(event) {
+                var messages = document.getElementById('messages')
+                var message = document.createElement('li')
+                var content = document.createTextNode(event.data)
+                message.appendChild(content)
+                messages.appendChild(message)
+            };
+            function sendMessage(event) {
+                var input = document.getElementById("messageText")
+                ws.send(input.value)
+                input.value = ''
+                event.preventDefault()
+            }
+        </script>
+    </body>
+</html>
+"""
+
+
+@app.get("/web")
+async def get():
+    return HTMLResponse(html)
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    websocket.app()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
