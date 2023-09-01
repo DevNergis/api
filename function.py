@@ -1,11 +1,5 @@
-from typing import *
-import random, orjson
 from datetime import *
-from mojang import API as MojangAPI
-from fastapi import *
-from fastapi.responses import *
 from yt_dlp import YoutubeDL
-from pydantic import BaseModel
 from io import BytesIO
 import dotenv, requests
 

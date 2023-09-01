@@ -4,11 +4,10 @@ from datetime import *
 from mojang import API as MojangAPI
 from fastapi import *
 from fastapi.responses import *
-from yt_dlp import YoutubeDL
 from pydantic import BaseModel
-from io import BytesIO
 from function import *
-import redis, base64, dotenv, requests, uuid
+from schema import *
+import redis, base64, requests, uuid
 
 app = FastAPI(title="FDZZ API", description="FDZZ API", version="5.0.0", default_response_class=ORJSONResponse)
 
@@ -25,13 +24,6 @@ async def my_endpoint(request: Request):
     ip = request.client.host
     return ORJSONResponse(content={"ip":f"{ip}"}, status_code=200)
 
-class _cdt(BaseModel):
-    server_name: str
-    invite_link: str
-    random: bool
-
-class mealServiceDietInfo_(BaseModel):
-    SchoolName: str
 @app.post("/api/school/meal")
 async def mealServiceDietInfo(body: mealServiceDietInfo_):
     url = f"https://open.neis.go.kr/hub/schoolInfo?KEY={OPEN_NEIS_API_KEY}&Type=json&pIndex=1&pSize=10&SCHUL_NM={body.SchoolName}"
