@@ -19,6 +19,10 @@ async def main():
 async def main_sytle():
     return FileResponse("src/style.css")
 
+@app.get("/status")
+async def status():
+    return PlainTextResponse("Hi!")
+
 @app.post('/my-endpoint')
 async def my_endpoint(request: Request):
     ip = request.client.host
@@ -211,11 +215,9 @@ html = """
 </html>
 """
 
-
 @app.get("/web")
 async def get():
     return HTMLResponse(html)
-
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
