@@ -7,3 +7,6 @@ class cdt_(BaseModel):
 
 class mealServiceDietInfo_(BaseModel):
     SchoolName: str
+
+class qloat_body_(BaseModel):
+    password: str

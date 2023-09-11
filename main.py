@@ -4,20 +4,29 @@ from datetime import *
 from mojang import API as MojangAPI
 from fastapi import *
 from fastapi.responses import *
-from pydantic import BaseModel
-from function import *
-from schema import *
+from src.function import *
+from src.schema import *
 import redis, base64, requests, uuid
+
+from api.v1.qloat import qaa
+from api.v1.school import school
+from api.v1.img import sfw
+from api.v1.file import file
 
 app = FastAPI(title="FDZZ API", description="FDZZ API", version="5.0.0", default_response_class=ORJSONResponse)
 
+app.include_router(qaa.router)
+app.include_router(school.router)
+app.include_router(sfw.router)
+app.include_router(file.router)
+
 @app.get("/")
 async def main():
-    return FileResponse("src/index.html")
+    return FileResponse("static/index.html")
 
 @app.get("/style.css")
 async def main_sytle():
-    return FileResponse("src/style.css")
+    return FileResponse("static/style.css")
 
 @app.get("/status")
 async def status():
@@ -27,38 +36,6 @@ async def status():
 async def my_endpoint(request: Request):
     ip = request.client.host
     return ORJSONResponse(content={"ip":f"{ip}"}, status_code=200)
-
-@app.post("/api/school/meal")
-async def mealServiceDietInfo(body: mealServiceDietInfo_):
-    url = f"https://open.neis.go.kr/hub/schoolInfo?KEY={OPEN_NEIS_API_KEY}&Type=json&pIndex=1&pSize=10&SCHUL_NM={body.SchoolName}"
-    request = requests.get(url=url)
-    r = orjson.loads(request.text)
-    rr = r['schoolInfo'][-1]
-    rrr = rr['row'][-1]
-    ATPT_OFCDC_SC_CODE = rrr['ATPT_OFCDC_SC_CODE']
-    SD_SCHUL_CODE = rrr['SD_SCHUL_CODE']
-    url = f"https://open.neis.go.kr/hub/mealServiceDietInfo?KEY={OPEN_NEIS_API_KEY}&Type=json&pIndex=1&pSize=10&ATPT_OFCDC_SC_CODE={ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE={SD_SCHUL_CODE}&MLSV_YMD={DATE}"
-    request = requests.get(url=url)
-    if request.text == """{"RESULT":{"CODE":"INFO-200","MESSAGE":"해당하는 데이터가 없습니다."}}""":
-        return ORJSONResponse(content={"RESULT":{"CODE":"INFO-200","MESSAGE":"해당하는 데이터가 없습니다."}}, status_code=200)
-    else:
-        r = orjson.loads(request.text)
-        rr = r['mealServiceDietInfo'][-1]
-        rrr = rr['row'][-1]
-        DDISH_NM = rrr['DDISH_NM']
-        DDISH_NM_LIST = DDISH_NM.replace('<br/>', '\n')
-        return ORJSONResponse(content={"SchoolName":f"{body.SchoolName}", "SchoolMeal":[DDISH_NM_LIST]}, status_code=200)
-
-@app.get("/api/img/sfw")
-async def api_img():
-    import requests
-    optional = random.choice(["waifu","neko","shinobu","megumin","bully","cuddle","cry","hug","awoo","kiss","lick","pat","smug","bonk","yeet","blush","smile","wave","highfive","handhold","nom","bite","glomp","slap","kill","kick","happy","wink","poke","dance","cringe"])
-    sfw = requests.get(f"https://api.waifu.pics/sfw/{optional}")
-    if (sfw.status_code == requests.codes.ok):
-        sfw = sfw.json()
-        sfw = sfw["url"]
-        print(sfw)
-        return ORJSONResponse(content={"url":f"{sfw}"}, status_code=200)
 
 @app.get("/yt-dla")
 async def youtube_dl(url: str):
@@ -100,129 +77,3 @@ async def skinrender(name: str):
 
     </html>
     """ % (name, name), status_code=200)
-
-#file api
-@app.get("/file/download/{file_id}/")
-async def file_download(file_id: str, file: Union[str, None] = None, password: Union[str, None] = "password"):
-    redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
-    password_db = redis_file_db_password.get(file_id).decode('utf-8')
-    password_db = bytes.fromhex(password_db).decode('utf-8')
-    password_db = base64.b64decode(password_db).decode("utf-8")
-
-    if password == "password":
-        if password == password_db:
-            pass
-        else:
-            return HTMLResponse("Need Password", status_code=403)
-    else:
-        if password == password_db:
-            pass
-        else:
-            if password_db == "password":
-                return HTMLResponse("No Password Required", status_code=403)
-            else:
-                return HTMLResponse("Wrong Password", status_code=403)
-
-    if file == None:
-        redis_file_db_name = redis.StrictRedis(host='localhost', port=6379, db=0)
-        file_name = redis_file_db_name.get(file_id).decode('utf-8')
-        file_name = bytes.fromhex(file_name).decode('utf-8')
-        file_name = base64.b64decode(file_name).decode("utf-8")
-        redis_file_db_name.close()
-
-        return FileResponse(f"{FILE_PATH}/{file_id}", filename=file_name)
-    else:
-        return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
-
-@app.post("/file/upload/")
-async def file_upload(files: List[UploadFile] = File(), password: Union[str, None] = None):
-    file_size_list = list()
-    file_uuid_list = list()
-    file_name_list = list()
-    file_url_list = list()
-    file_direct_list = list()
-
-    for file in files:
-        file_uuid = str(uuid.uuid4())
-        file_name = base64.b64encode(bytes(file.filename, 'utf-8')).hex()
-
-        if password != None:
-            password = base64.b64encode(bytes(password, 'utf-8')).hex()
-
-            redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
-            redis_file_db_password.set(file_uuid, password)
-            redis_file_db_password.close()
-        else:
-            password = base64.b64encode(bytes("password", 'utf-8')).hex()
-
-            redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
-            redis_file_db_password.set(file_uuid, password)
-            redis_file_db_password.close()
-
-        redis_file_db_name = redis.StrictRedis(host='localhost', port=6379, db=0)
-        redis_file_db_name.set(file_uuid, file_name)
-        redis_file_db_name.close()
-
-        with open(f"{FILE_PATH}/{file_uuid}", "wb") as file_save:
-            file_save.write(file.file.read(20*1024*1024))
-
-        file.file.close()
-
-        file_size_list.append(file.size)
-        file_uuid_list.append(file_uuid)
-        file_name_list.append(file.filename)
-        file_url_list.append(f"{SERVER_URL}/file/download/{file_uuid}")
-        file_direct_list.append(f"{SERVER_URL}/file/download/{file_uuid}/?file={file.filename}")
-        if password == "password":
-            password_status = "No"
-        else:
-            password_status = "Yes"
-
-    return ORJSONResponse(content={"passworld": password_status, "file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)
-#end
-
-html = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Chat</title>
-    </head>
-    <body>
-        <h1>WebSocket Chat</h1>
-        <form action="" onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
-            <button>Send</button>
-        </form>
-        <ul id='messages'>
-        </ul>
-        <script>
-            var ws = new WebSocket("ws://localhost:8080/ws");
-            ws.onmessage = function(event) {
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-            function sendMessage(event) {
-                var input = document.getElementById("messageText")
-                ws.send(input.value)
-                input.value = ''
-                event.preventDefault()
-            }
-        </script>
-    </body>
-</html>
-"""
-
-@app.get("/web")
-async def get():
-    return HTMLResponse(html)
-
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    websocket.app()
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Message text was: {data}")
