@@ -39,14 +39,13 @@ async def file_download(file_id: str, file: Union[str, None] = None, password: U
         return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
 
 @router.post("/archive/upload")
-async def file_upload(body: qloat_body_, files: List[UploadFile] = File()):
+async def file_upload(password: str = Form(media_type="application/json"), files: List[UploadFile] = File()):
     file_size_list = list()
     file_uuid_list = list()
     file_name_list = list()
     file_url_list = list()
     file_direct_list = list()
     file_name_str = f"Qloat-{DATE_QLOAT}.apk"
-    password = body.password
 
     for file in files:
         file_uuid = str(uuid.uuid4())
