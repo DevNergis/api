@@ -32,10 +32,10 @@ async def main_sytle():
 async def status():
     return PlainTextResponse("Hi!")
 
-@app.post('/my-endpoint')
-async def my_endpoint(request: Request):
+@app.post('/ip')
+async def ip(request: Request):
     ip = request.client.host
-    return ORJSONResponse(content={"ip":f"{ip}"}, status_code=200)
+    return PlainTextResponse(content=f"{ip}")
 
 @app.get("/yt-dla")
 async def youtube_dl(url: str):

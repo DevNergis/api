@@ -10,7 +10,7 @@ HEADERS = dotenv.get_key(".env", "HEADERS")
 SERVER_URL = dotenv.get_key(".env", "SERVER_URL")
 DATE = datetime.now().strftime('%Y%m%d')
 DATE_QLOAT = datetime.now()
-QLOAT_PASSWORD = "test"
+QLOAT_PASSWORD = dotenv.get_key(".env", "QLOAT_PASSWORD")
 FILE_PATH_QLOAT = dotenv.get_key(".env", "FILE_PATH_QLOAT")
 
 def YDL_URL(url: str):
