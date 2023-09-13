@@ -1,4 +1,3 @@
-from pstats import Stats
 from typing import *
 import random, orjson
 from datetime import *
@@ -14,7 +13,7 @@ from api.v1.school import school
 from api.v1.img import sfw
 from api.v1.file import file
 
-app = FastAPI(title="FDZZ API", description="FDZZ API", version="5.0.0", default_response_class=ORJSONResponse)
+app = FastAPI(debug=True ,title="FDZZ API", description="FDZZ API", version="6.0.0", default_response_class=ORJSONResponse)
 
 app.include_router(qaa.router)
 app.include_router(school.router)
