@@ -1,3 +1,4 @@
+from pstats import Stats
 from typing import *
 import random, orjson
 from datetime import *
@@ -6,7 +7,7 @@ from fastapi import *
 from fastapi.responses import *
 from src.function import *
 from src.schema import *
-import redis, base64, requests, uuid
+import redis, base64, requests, uuid, re
 
 from api.v1.qloat import qaa
 from api.v1.school import school
@@ -36,6 +37,17 @@ async def status():
 async def ip(request: Request):
     ip = request.client.host
     return PlainTextResponse(content=f"{ip}")
+
+@app.post('/my-endpoint')
+async def my_endpoint(request: Request):
+    x = 'x-forwarded-for'.encode('utf-8')
+    for header in request.headers.raw:
+        if header[0] == x:
+            print("Find out the forwarded-for ip address")
+            origin_ip, forward_ip = re.split(', ', header[1].decode('utf-8'))
+            print(f"origin_ip:\t{origin_ip}")
+            print(f"forward_ip:\t{forward_ip}")
+    return PlainTextResponse(content=f"{origin_ip} {forward_ip}")
 
 @app.get("/yt-dla")
 async def youtube_dl(url: str):
