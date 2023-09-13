@@ -33,7 +33,7 @@ async def main_sytle():
 async def status():
     return PlainTextResponse("Hi!")
 
-@app.post('/ip')
+@app.get('/ip')
 async def ip(ip: str = Header(None, alias='X-Forwarded-For')):
     return PlainTextResponse(content=f"{ip}")
 
