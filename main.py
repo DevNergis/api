@@ -34,20 +34,8 @@ async def status():
     return PlainTextResponse("Hi!")
 
 @app.post('/ip')
-async def ip(request: Request):
-    ip = request.client.host
+async def ip(ip: str = Header(None, alias='X-Forwarded-For')):
     return PlainTextResponse(content=f"{ip}")
-
-@app.post('/my-endpoint')
-async def my_endpoint(request: Request):
-    x = 'x-forwarded-for'.encode('utf-8')
-    for header in request.headers.raw:
-        if header[0] == x:
-            print("Find out the forwarded-for ip address")
-            origin_ip, forward_ip = re.split(', ', header[1].decode('utf-8'))
-            print(f"origin_ip:\t{origin_ip}")
-            print(f"forward_ip:\t{forward_ip}")
-    return PlainTextResponse(content=f"{origin_ip} {forward_ip}")
 
 @app.get("/yt-dla")
 async def youtube_dl(url: str):
