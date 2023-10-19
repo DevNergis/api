@@ -6,7 +6,7 @@ from fastapi import *
 from fastapi.responses import *
 from src.function import *
 from src.schema import *
-import redis, base64, requests, uuid, re
+import base64, requests, uuid, re
 
 from api.v1.qloat import qaa
 from api.v1.school import school

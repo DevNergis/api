@@ -6,8 +6,9 @@ router = APIRouter(prefix="/api/v1/file", tags=["file"])
 
 @router.get("/download/{file_id}")
 async def file_download(file_id: str, file: Union[str, None] = None, password: Union[str, None] = "password"):
-    redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
+    redis_file_db_password = redis.Redis(connection_pool=pool(1))
     password_db = redis_file_db_password.get(file_id).decode('utf-8')
+    redis_file_db_password.close()
     password_db = bytes.fromhex(password_db).decode('utf-8')
     password_db = base64.b64decode(password_db).decode("utf-8")
 
@@ -26,11 +27,11 @@ async def file_download(file_id: str, file: Union[str, None] = None, password: U
                 return HTMLResponse("Wrong Password", status_code=403)
 
     if file == None:
-        redis_file_db_name = redis.StrictRedis(host='localhost', port=6379, db=0)
+        redis_file_db_name = redis.Redis(connection_pool=pool(0))
         file_name = redis_file_db_name.get(file_id).decode('utf-8')
+        redis_file_db_name.close()
         file_name = bytes.fromhex(file_name).decode('utf-8')
         file_name = base64.b64decode(file_name).decode("utf-8")
-        redis_file_db_name.close()
 
         return FileResponse(f"{FILE_PATH}/{file_id}", filename=file_name)
     else:
@@ -51,17 +52,17 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         if password != None:
             password = base64.b64encode(bytes(password, 'utf-8')).hex()
 
-            redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
+            redis_file_db_password = redis.Redis(connection_pool=pool(1))
             redis_file_db_password.set(file_uuid, password)
             redis_file_db_password.close()
         else:
             password = base64.b64encode(bytes("password", 'utf-8')).hex()
 
-            redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
+            redis_file_db_password = redis.Redis(connection_pool=pool(1))
             redis_file_db_password.set(file_uuid, password)
             redis_file_db_password.close()
 
-        redis_file_db_name = redis.StrictRedis(host='localhost', port=6379, db=0)
+        redis_file_db_name = redis.Redis(connection_pool=pool(0))
         redis_file_db_name.set(file_uuid, file_name)
         redis_file_db_name.close()
 

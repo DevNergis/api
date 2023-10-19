@@ -2,6 +2,7 @@ from datetime import *
 from yt_dlp import YoutubeDL
 from io import BytesIO
 import dotenv, requests
+import redis
 
 FILE_PATH = dotenv.get_key(".env", "FILE_PATH")
 OPEN_NEIS_API_KEY = dotenv.get_key(".env", "OPEN_NEIS_API_KEY")
@@ -12,6 +13,9 @@ DATE = datetime.now().strftime('%Y%m%d')
 DATE_QLOAT = datetime.now()
 QLOAT_PASSWORD = dotenv.get_key(".env", "QLOAT_PASSWORD")
 FILE_PATH_QLOAT = dotenv.get_key(".env", "FILE_PATH_QLOAT")
+
+def pool(db: int = 0):
+    return redis.ConnectionPool(host='localhost', port=6379, db=db)
 
 def YDL_URL(url: str):
     with YoutubeDL(YDL_OPTIONS) as ydl:
