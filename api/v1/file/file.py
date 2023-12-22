@@ -89,9 +89,7 @@ async def ipfs_upload(files: List[UploadFile] = File(), password: Union[str, Non
     import requests
 
     file_size_list = list()
-    file_cid_list = list()
     file_name_list = list()
-    file_url_list = list()
     file_direct_list = list()
 
     header = {
