@@ -81,4 +81,4 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         else:
             password_status = "Yes"
 
-    return ORJSONResponse(content={"passworld": password_status, "file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)
+    return ORJSONResponse(content={"password": password_status, "file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)

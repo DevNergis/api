@@ -4,6 +4,7 @@ from datetime import *
 from mojang import API as MojangAPI
 from fastapi import *
 from fastapi.responses import *
+from fastapi.middleware.cors import *
 from src.function import *
 from src.schema import *
 import base64, requests, uuid, re
@@ -14,6 +15,14 @@ from api.v1.img import sfw
 from api.v1.file import file
 
 app = FastAPI(debug=True ,title="FDZZ API", description="FDZZ API", version="6.0.0", default_response_class=ORJSONResponse)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+) 
 
 app.include_router(qaa.router)
 app.include_router(school.router)
