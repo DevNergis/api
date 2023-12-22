@@ -6,6 +6,8 @@ router = APIRouter(prefix="/api/v1/school", tags=["school"])
 
 @router.post("/meal")
 async def mealServiceDietInfo(body: mealServiceDietInfo_):
+    import requests
+
     url = f"https://open.neis.go.kr/hub/schoolInfo?KEY={OPEN_NEIS_API_KEY}&Type=json&pIndex=1&pSize=10&SCHUL_NM={body.SchoolName}"
     request = requests.get(url=url)
     r = orjson.loads(request.text)
