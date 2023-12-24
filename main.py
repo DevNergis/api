@@ -1,7 +1,6 @@
 from typing import *
 import random, orjson
 from datetime import *
-from mojang import API as MojangAPI
 from fastapi import *
 from fastapi.responses import *
 from fastapi.middleware.cors import *
@@ -50,38 +49,3 @@ async def youtube_dl(url: str):
     URL = YDL_URL(url)
 
     return HTMLResponse(content=f"""{URL}""", status_code=200)
-
-@app.get("/minecraft/info")
-async def minecraft(name: str):
-    uuid = MojangAPI.get_uuid(name)
-
-    if not uuid:
-        return ORJSONResponse(content={"error":f"{name} is not a taken username."})
-    else:
-        profile = MojangAPI.get_profile(uuid)
-        return ORJSONResponse(content={"name":f"{name}", "uuid":f"{uuid}", "skin":f"{profile.skin_url}", "model":f"{profile.skin_model}", "cape":f"{profile.cape_url}"}, status_code=200)
-
-@app.get("/minecraft/render")
-async def skinrender(name: str):
-    return HTMLResponse(content=
-    """
-    <!DOCTYPE html>
-    <html>
-
-        <head>
-            <title>%s Skin Render</title>
-            <link rel="shortcut icon" href="https://fastapi.tiangolo.com/img/favicon.png">
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/94/three.min.js" integrity="sha256-NGC9JEuTWN4GhTj091wctgjzftr+8WNDmw0H8J5YPYE=" crossorigin="anonymous"></script>
-            <script src="https://cdn.jsdelivr.net/gh/InventivetalentDev/MineRender@1.4.6/dist/skin.min.js"></script>
-        </head>
-
-        <body>
-            <script>
-                var skinRender = new SkinRender({/* options */}, document.getElementById("mySkinContainer"));
-                skinRender.render("%s");
-            </script>
-        </body>
-
-    </html>
-    """ % (name, name), status_code=200)
