@@ -12,8 +12,14 @@ from api.v1.qloat import qaa
 from api.v1.school import school
 from api.v1.img import sfw
 from api.v1.file import file
+from api.v1.ipfs import ipfs
 
-app = FastAPI(debug=True ,title="FDZZ API", description="FDZZ API", version="6.0.0", default_response_class=ORJSONResponse)
+app = FastAPI(
+    title="Nergis API",
+    summary="Made By Dev_Nergis",
+    description="Nergis API",
+    version="6.0.0",
+    default_response_class=ORJSONResponse)
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,6 +33,7 @@ app.include_router(qaa.router)
 app.include_router(school.router)
 app.include_router(sfw.router)
 app.include_router(file.router)
+app.include_router(ipfs.router)
 
 @app.get("/")
 async def main():

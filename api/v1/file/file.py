@@ -82,37 +82,3 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
             password_status = "Yes"
 
     return ORJSONResponse(content={"password": password_status, "file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)
-
-@router.post("/ipfs/upload")
-async def ipfs_upload(files: List[UploadFile] = File(), password: Union[str, None] = None):
-    import requests
-
-    file_size_list = list()
-    file_name_list = list()
-    file_direct_list = list()
-
-    header = {
-        'x-agent-did': 'did:key:z6MknjRbVGkfWK1x5gyJZb6D4LjMj1EsitFzcSccS3sAaviQ',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDUzNjc0RUE2NTE1OERjNUU3MkYzQzNDMTY0NDRiN0QxNjdjMUVlYkMiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMzE2MzE1MTcwMCwibmFtZSI6Im1haW4ifQ.w_cuvNWxDpBKisNIrmbrqAhIczbXCRCciOPLsNPNLe8'
-    }
-
-    file_list = list()
-
-    for file in files:
-        file_list.append(('file', (file.filename, file.file.read(20*1024*1024), 'application/octet-stream')))
-
-        file_size_list.append(file.size)
-        file_name_list.append(file.filename)
-
-
-    response = requests.post("https://api.nft.storage/upload", files=file_list, headers=header)
-    data = response.json()
-
-    cid = data["value"]["cid"]
-    directory_url = f"https://{cid}.ipfs.cf-ipfs.com"
-
-    for file_name in file_name_list:
-        file_direct_list.append(f"https://{cid}.ipfs.cf-ipfs.com/{file_name}")
-
-    if response.status_code == 200:
-        return ORJSONResponse(content={"file_size": file_size_list, "directory_cid": cid, "file_name": file_name_list, "directory_url": directory_url, "file_direct": file_direct_list}, status_code=200)

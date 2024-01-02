@@ -46,6 +46,28 @@
                     </div>
                 </form>
             </div>
+
+            <div class="file">
+
+                <form action="/api/v1/ipfs/upload/" enctype="multipart/form-data" method="post">
+
+                    <!-- 버튼 -->
+                    <div class="label">
+
+                        <label for="file">
+                            <div class="btn-upload">올릴 파일 선택</div>
+                            <!-- input -->
+                            <input class="upload" name="files" type="file" id="file" multiple>
+                        </label>
+
+                        <label for="submit">
+                            <div class="btn-upload">선택 파일 올리기</div>
+                            <!-- input -->
+                            <input type="submit" id="submit">
+                        </label>
+                    </div>
+                </form>
+            </div>
         </div>
     </body>
 </html>

@@ -14,6 +14,9 @@ DATE_QLOAT = datetime.now()
 QLOAT_PASSWORD = dotenv.get_key(".env", "QLOAT_PASSWORD")
 FILE_PATH_QLOAT = dotenv.get_key(".env", "FILE_PATH_QLOAT")
 
+x_agent_did = dotenv.get_key(".env", "x-agent-did")
+Authorization = dotenv.get_key(".env", "Authorization")
+
 def pool(db: int = 0):
     return redis.ConnectionPool(host='localhost', port=6379, db=db)
 
