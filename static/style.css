@@ -25,8 +25,11 @@ a {
     text-decoration: none;
 }
 
-/* 이예ㅔㅔㅔㅔ ㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔㅔ*/
 label[for='submit'] input:nth-child(2){/*제출 버튼 제거*/
+    display: none;
+}
+
+label[for='submit-ipfs'] input:nth-child(2){/*제출 버튼 제거*/
     display: none;
 }
 
