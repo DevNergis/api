@@ -8,11 +8,11 @@ from src.function import *
 from src.schema import *
 import base64, requests, uuid, re
 
-from api.v1.qloat import qaa
-from api.v1.school import school
-from api.v1.img import sfw
-from api.v1.file import file
-from api.v1.ipfs import ipfs
+from v1.qloat import qaa
+from v1.school import school
+from v1.img import sfw
+from v1.file import file
+from v1.ipfs import ipfs
 
 app = FastAPI(
     title="Nergis API",

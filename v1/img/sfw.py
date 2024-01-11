@@ -2,7 +2,7 @@ from main import *
 from src.function import *
 from src.schema import *
 
-router = APIRouter(prefix="/api/v1/img", tags=["img"])
+router = APIRouter(prefix="/v1/img", tags=["img"])
 
 @router.get("/sfw")
 async def api_img():

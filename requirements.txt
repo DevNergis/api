@@ -2,3 +2,4 @@ fastapi[all]
 redis
 requests
 hypercorn
+yt-dlp

@@ -4,7 +4,7 @@ from main import *
 from src.function import *
 from src.schema import *
 
-router = APIRouter(prefix="/api/v1/qloat", tags=["qloat"])
+router = APIRouter(prefix="/v1/qloat", tags=["qloat"])
 
 @router.get("/archive/download/{file_id}")
 async def file_download(file_id: str):

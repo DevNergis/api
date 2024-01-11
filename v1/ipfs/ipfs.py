@@ -2,7 +2,7 @@ from main import *
 from src.function import *
 from src.schema import *
 
-router = APIRouter(prefix="/api/v1/ipfs", tags=["ipfs"])
+router = APIRouter(prefix="/v1/ipfs", tags=["ipfs"])
 
 @router.post("/upload")
 async def ipfs_upload(files: List[UploadFile] = File()):

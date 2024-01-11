@@ -2,7 +2,7 @@ from main import *
 from src.function import *
 from src.schema import *
 
-router = APIRouter(prefix="/api/v1/file", tags=["file"])
+router = APIRouter(prefix="/v1/file", tags=["file"])
 
 @router.get("/download/{file_id}")
 async def file_download(file_id: str, file: Union[str, None] = None, password: Union[str, None] = "password"):

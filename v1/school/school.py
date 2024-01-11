@@ -2,7 +2,7 @@ from main import *
 from src.function import *
 from src.schema import *
 
-router = APIRouter(prefix="/api/v1/school", tags=["school"])
+router = APIRouter(prefix="/v1/school", tags=["school"])
 
 @router.post("/meal")
 async def mealServiceDietInfo(body: mealServiceDietInfo_):
