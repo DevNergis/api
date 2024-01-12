@@ -20,7 +20,7 @@ async def ipfs_upload(files: List[UploadFile] = File()):
     file_list = list()
 
     for file in files:
-        file_list.append(('file', (file.filename, file.file.read(), 'application/octet-stream')))
+        file_list.append(('file', (file.filename, await file.file.read(2*1024*1024), 'application/octet-stream')))
 
         file_size_list.append(file.size)
         file_name_list.append(file.filename)
