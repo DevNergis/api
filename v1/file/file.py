@@ -67,7 +67,7 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         redis_file_db_name.close()
 
         with open(f"{FILE_PATH}/{file_uuid}", "wb") as file_save:
-            file_save.write(file.file.read(20*1024*1024))
+            file_save.write(file.file.read(2*1024*1024))
 
         file.file.close()
 
