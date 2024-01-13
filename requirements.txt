@@ -3,3 +3,4 @@ redis
 requests
 hypercorn
 yt-dlp
+aiohttp[speedups]
