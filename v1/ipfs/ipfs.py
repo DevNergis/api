@@ -7,7 +7,7 @@ import aiohttp
 
 router = APIRouter(prefix="/v1/ipfs", tags=["ipfs"])
 
-@router.post("/upload")
+@router.post("/upload", summary="file upload to ipfs", description="The file size limit is 100MB.")
 async def ipfs_upload(files: List[UploadFile] = File()):
     file_size_list = list()
     file_name_list = list()
@@ -21,6 +21,9 @@ async def ipfs_upload(files: List[UploadFile] = File()):
     file_list = aiohttp.FormData()
 
     for file in files:
+        if file.size > 1024*1024*100:
+            return RedirectResponse(url="https://http.cat/413", status_code=413)
+
         chunk = BytesIO()
         chunk_range = range(ceil(file.size / (1024*1024*2)))
         
