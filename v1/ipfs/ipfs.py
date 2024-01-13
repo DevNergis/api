@@ -34,7 +34,9 @@ async def ipfs_upload(files: List[UploadFile] = File()):
         file_size_list.append(file.size)
         file_name_list.append(file.filename)
 
-    async with aiohttp.ClientSession(headers=header) as session:
+    my_timeout = aiohttp.ClientTimeout(total=None, sock_connect=10, sock_read=10)
+
+    async with aiohttp.ClientSession(headers=header, timeout=my_timeout, trust_env=True) as session:
         async with session.post("https://api.nft.storage/upload", data=file_list) as response:
             try:
                 data = await response.json()
