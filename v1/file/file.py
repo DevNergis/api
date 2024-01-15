@@ -1,6 +1,7 @@
 from main import *
 from src.function import *
 from src.schema import *
+import aiofiles
 
 router = APIRouter(prefix="/v1/file", tags=["file"])
 
@@ -66,8 +67,8 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         redis_file_db_name.set(file_uuid, file_name)
         redis_file_db_name.close()
 
-        with open(f"{FILE_PATH}/{file_uuid}", "wb") as file_save:
-            file_save.write(file.file.read(2*1024*1024))
+        async with aiofiles.open(f"{FILE_PATH}/{file_uuid}", "wb") as file_save:
+            await file_save.write(file.file.read(2*1024*1024))
 
         file.file.close()
 

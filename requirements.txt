@@ -4,3 +4,4 @@ requests
 hypercorn
 yt-dlp
 aiohttp[speedups]
+aiofiles
