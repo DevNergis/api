@@ -28,7 +28,7 @@ async def file_download(file_id: str, file: Union[str, None] = None, password: U
                 return HTMLResponse("Wrong Password", status_code=403)
 
     if file == None:
-        redis_file_db_name = redis.Redis(connection_pool=pool(0))
+        redis_file_db_name = redis.Redis(connection_pool=pool(FILE_DB))
         file_name = redis_file_db_name.get(file_id).decode('utf-8')
         redis_file_db_name.close()
         file_name = bytes.fromhex(file_name).decode('utf-8')
@@ -63,7 +63,7 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
             redis_file_db_password.set(file_uuid, password)
             redis_file_db_password.close()
 
-        redis_file_db_name = redis.Redis(connection_pool=pool(0))
+        redis_file_db_name = redis.Redis(connection_pool=pool(FILE_DB))
         redis_file_db_name.set(file_uuid, file_name)
         redis_file_db_name.close()
 
