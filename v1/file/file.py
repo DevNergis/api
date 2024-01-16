@@ -7,7 +7,7 @@ router = APIRouter(prefix="/v1/file", tags=["file"])
 
 @router.get("/download/{file_id}")
 async def file_download(file_id: str, file: Union[str, None] = None, password: Union[str, None] = "password"):
-    redis_file_db_password = redis.Redis(connection_pool=pool(1))
+    redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
     password_db = redis_file_db_password.get(file_id).decode('utf-8')
     redis_file_db_password.close()
     password_db = bytes.fromhex(password_db).decode('utf-8')
@@ -53,13 +53,13 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         if password != None:
             password = base64.b64encode(bytes(password, 'utf-8')).hex()
 
-            redis_file_db_password = redis.Redis(connection_pool=pool(1))
+            redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
             redis_file_db_password.set(file_uuid, password)
             redis_file_db_password.close()
         else:
             password = base64.b64encode(bytes("password", 'utf-8')).hex()
 
-            redis_file_db_password = redis.Redis(connection_pool=pool(1))
+            redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
             redis_file_db_password.set(file_uuid, password)
             redis_file_db_password.close()
 
