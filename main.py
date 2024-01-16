@@ -18,7 +18,7 @@ app = FastAPI(
     title="Nergis API",
     summary="Made By Dev_Nergis",
     description="Nergis API",
-    version="7.3.5",
+    version="7.3.6",
     default_response_class=ORJSONResponse)
 
 app.add_middleware(
