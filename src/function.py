@@ -16,6 +16,7 @@ FILE_PATH_QLOAT = dotenv.get_key(".env", "FILE_PATH_QLOAT")
 
 DB = dotenv.get_key(".env", "DB")
 FILE_DB = dotenv.get_key(".env", "FILE_DB")
+PASSWORD_DB = dotenv.get_key(".env", "PASSWORD_DB")
 
 x_agent_did = dotenv.get_key(".env", "x-agent-did")
 Authorization = dotenv.get_key(".env", "Authorization")
