@@ -14,11 +14,14 @@ DATE_QLOAT = datetime.now()
 QLOAT_PASSWORD = dotenv.get_key(".env", "QLOAT_PASSWORD")
 FILE_PATH_QLOAT = dotenv.get_key(".env", "FILE_PATH_QLOAT")
 
+DB = dotenv.get_key(".env", "DB")
+FILE_DB = dotenv.get_key(".env", "FILE_DB")
+
 x_agent_did = dotenv.get_key(".env", "x-agent-did")
 Authorization = dotenv.get_key(".env", "Authorization")
 
-def pool(db: int = 0):
-    return redis.ConnectionPool(host='localhost', port=6379, db=db)
+def pool(db_num: int = 0):
+    return redis.ConnectionPool().from_url(f"{DB}/{db_num}")
 
 def YDL_URL(url: str):
     with YoutubeDL(YDL_OPTIONS) as ydl:
