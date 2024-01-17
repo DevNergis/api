@@ -54,8 +54,8 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         file_size_list.append(file.size)
         file_uuid_list.append(file_uuid)
         file_name_list.append(file.filename)
-        file_url_list.append(f"{SERVER_URL}/file/download/{file_uuid}")
-        file_direct_list.append(f"{SERVER_URL}/file/download/{file_uuid}/?file={file.filename}")
+        file_url_list.append(f"{SERVER_URL}/v1/file/download/{file_uuid}")
+        file_direct_list.append(f"{SERVER_URL}/v1/file/download/{file_uuid}/?file={file.filename}")
         if password == "password":
             password_status = "No"
         else:
