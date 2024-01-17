@@ -1,3 +1,4 @@
+from math import ceil
 from main import *
 from src.function import *
 from src.schema import *
@@ -67,10 +68,20 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         redis_file_db_name.set(file_uuid, file_name)
         redis_file_db_name.close()
 
-        async with aiofiles.open(f"{FILE_PATH}/{file_uuid}", "wb") as file_save:
-            await file_save.write(file.file.read(2*1024*1024))
+        chunk = BytesIO()
+        chunk_range = range(ceil(file.size / (1024*1024*2)))
+        
+        for _ in chunk_range:
+            chunk.write(await file.read(1024*1024*2))
 
+        chunk.seek(0)
+
+        async with aiofiles.open(f"{FILE_PATH}/{file_uuid}", "wb") as file_save:
+            await file_save.write(chunk.read())
+
+        chunk.close()
         file.file.close()
+        file.close()
 
         file_size_list.append(file.size)
         file_uuid_list.append(file_uuid)

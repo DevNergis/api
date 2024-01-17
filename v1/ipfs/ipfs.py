@@ -34,6 +34,10 @@ async def ipfs_upload(files: List[UploadFile] = File()):
 
         file_list.add_field(name="file", value=chunk.read(), content_type="application/octet-stream", filename=file.filename)
 
+        chunk.close()
+        file.file.close()
+        file.close()
+
         file_size_list.append(file.size)
         file_name_list.append(file.filename)
 
