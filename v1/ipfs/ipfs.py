@@ -24,6 +24,9 @@ async def ipfs_upload(files: List[UploadFile] = File()):
         if file.size > 1024*1024*100:
             return RedirectResponse(url="https://http.cat/413", status_code=413)
 
+        file_size_list.append(file.size)
+        file_name_list.append(file.filename)
+
         chunk = BytesIO()
         chunk_range = range(ceil(file.size / (1024*1024*2)))
         
@@ -36,10 +39,7 @@ async def ipfs_upload(files: List[UploadFile] = File()):
 
         chunk.close()
         file.file.close()
-        file.close()
-
-        file_size_list.append(file.size)
-        file_name_list.append(file.filename)
+        await file.close()
 
     my_timeout = aiohttp.ClientTimeout(total=None, sock_connect=10, sock_read=10)
 

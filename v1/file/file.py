@@ -51,6 +51,16 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         file_uuid = str(uuid.uuid4())
         file_name = base64.b64encode(bytes(file.filename, 'utf-8')).hex()
 
+        file_size_list.append(file.size)
+        file_uuid_list.append(file_uuid)
+        file_name_list.append(file.filename)
+        file_url_list.append(f"{SERVER_URL}/file/download/{file_uuid}")
+        file_direct_list.append(f"{SERVER_URL}/file/download/{file_uuid}/?file={file.filename}")
+        if password == "password":
+            password_status = "No"
+        else:
+            password_status = "Yes"
+
         if password != None:
             password = base64.b64encode(bytes(password, 'utf-8')).hex()
 
@@ -81,16 +91,6 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
 
         chunk.close()
         file.file.close()
-        file.close()
-
-        file_size_list.append(file.size)
-        file_uuid_list.append(file_uuid)
-        file_name_list.append(file.filename)
-        file_url_list.append(f"{SERVER_URL}/file/download/{file_uuid}")
-        file_direct_list.append(f"{SERVER_URL}/file/download/{file_uuid}/?file={file.filename}")
-        if password == "password":
-            password_status = "No"
-        else:
-            password_status = "Yes"
+        await file.close()
 
     return ORJSONResponse(content={"password": password_status, "file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)
