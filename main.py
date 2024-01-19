@@ -13,6 +13,7 @@ from v1.school import school
 from v1.img import sfw
 from v1.file import file
 from v1.ipfs import ipfs
+from v1.h_k import h_k
 
 app = FastAPI(
     title="Nergis API",
@@ -34,6 +35,7 @@ app.include_router(school.router)
 app.include_router(sfw.router)
 app.include_router(file.router)
 app.include_router(ipfs.router)
+app.include_router(h_k.router)
 
 @app.get("/")
 async def main():
