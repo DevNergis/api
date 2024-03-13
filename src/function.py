@@ -24,23 +24,23 @@ Authorization = dotenv.get_key(".env", "Authorization")
 def pool(db_num: int = 0):
     return redis.ConnectionPool().from_url(f"{DB}/{db_num}")
 
-def YDL_URL(url: str):
+def ydl_url(url: str):
     with YoutubeDL(YDL_OPTIONS) as ydl:
         info = ydl.extract_info(url, download=False)
 
-    URL = info['formats'][0]['url']
-    return URL
+    url = info['formats'][0]['url']
+    return url
 
-def YDL_cache(URL: str, NAME: str):
-    with requests.get(URL, stream=True, headers=HEADERS) as file_request:
+def ydl_cache(url: str, name: str):
+    with requests.get(url, stream=True, headers=HEADERS) as file_request:
         content = BytesIO()
         
         for chunk in file_request.iter_content(chunk_size=1*1024*1024):
             content.write(chunk)
 
-        with open(f"{NAME}", "wb") as file_save:
+        with open(f"{name}", "wb") as file_save:
             file_save.write(content.getbuffer())
         
         content.seek(0)
 
-    return URL, NAME
+    return url, name

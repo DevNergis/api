@@ -1,3 +1,5 @@
+from typing import List
+
 from main import *
 from src.function import *
 from src.schema import *

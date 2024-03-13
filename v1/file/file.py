@@ -1,4 +1,10 @@
+import base64
+import uuid
 from math import ceil
+from typing import Union, List
+
+from redis import Redis
+
 from main import *
 from src.function import *
 from src.schema import *
@@ -10,6 +16,7 @@ router = APIRouter(prefix="/v1/file", tags=["file"])
 
 password_header = APIKeyHeader(name="x-password", auto_error=False)
 
+
 @router.get("/download/{file_id}")
 async def file_download(file_id: str, file: Union[str, None] = None, password: Union[str, None] = Security(password_header)):
     try:
@@ -19,17 +26,17 @@ async def file_download(file_id: str, file: Union[str, None] = None, password: U
         password_db = bytes.fromhex(password_db).decode('utf-8')
         password_db = base64.b64decode(password_db).decode("utf-8")
 
-        if password == None:
+        if password is None:
             return HTMLResponse("Need Password", status_code=403)
         elif password == password_db:
             pass
         else:
             return HTMLResponse("Wrong Password", status_code=403)
-    except:
+    finally:
         pass
 
-    if file == None:
-        redis_file_db_name = redis.Redis(connection_pool=pool(FILE_DB))
+    if file is None:
+        redis_file_db_name: Redis = redis.Redis(connection_pool=pool(FILE_DB))
         file_name = redis_file_db_name.get(file_id).decode('utf-8')
         redis_file_db_name.close()
         file_name = bytes.fromhex(file_name).decode('utf-8')
@@ -38,6 +45,7 @@ async def file_download(file_id: str, file: Union[str, None] = None, password: U
         return FileResponse(f"{FILE_PATH}/{file_id}", filename=file_name)
     else:
         return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
+
 
 @router.post("/upload")
 async def file_upload(files: List[UploadFile] = File(), password: Union[str, None] = Security(password_header)):
@@ -57,25 +65,25 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         file_url_list.append(f"{SERVER_URL}/v1/file/download/{file_uuid}")
         file_direct_list.append(f"{SERVER_URL}/v1/file/download/{file_uuid}/?file={file.filename}")
 
-        if password == None:
+        if password is None:
             password_status = "No"
         else:
             password_status = "Yes"
             password = base64.b64encode(bytes(password, 'utf-8')).hex()
 
             redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
-            redis_file_db_password.set(file_uuid, password)
+            await redis_file_db_password.set(file_uuid, password)
             redis_file_db_password.close()
 
         redis_file_db_name = redis.Redis(connection_pool=pool(FILE_DB))
-        redis_file_db_name.set(file_uuid, file_name)
+        await redis_file_db_name.set(file_uuid, file_name)
         redis_file_db_name.close()
 
         chunk = BytesIO()
-        chunk_range = range(ceil(file.size / (1024*1024*2)))
-        
+        chunk_range = range(ceil(file.size / (1024 * 1024 * 2)))
+
         for _ in chunk_range:
-            chunk.write(await file.read(1024*1024*2))
+            chunk.write(await file.read(1024 * 1024 * 2))
 
         chunk.seek(0)
 
@@ -86,4 +94,7 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         file.file.close()
         await file.close()
 
-    return ORJSONResponse(content={"password": password_status, "file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)
+    return ORJSONResponse(
+        content={"password": password_status, "file_size": file_size_list, "file_uuid": file_uuid_list,
+                 "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list},
+        status_code=200)

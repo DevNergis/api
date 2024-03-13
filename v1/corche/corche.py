@@ -1,6 +1,6 @@
+from random import random
+
 from main import *
-from src.function import *
-from src.schema import *
 
 router = APIRouter(prefix="/v1/corche", tags=["corche"])
 

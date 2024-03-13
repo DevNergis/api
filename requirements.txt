@@ -1,7 +1,9 @@
-fastapi[all]
-redis
-requests
-hypercorn
-yt-dlp
-aiohttp[speedups]
-aiofiles
+fastapi[all]~=0.110.0
+redis~=5.0.1
+requests~=2.31.0
+aiohttp[speedups]~=3.9.3
+aiofiles~=23.2.1
+
+pydantic~=2.5.3
+python-dotenv~=1.0.0
+starlette~=0.36.3

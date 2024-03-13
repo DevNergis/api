@@ -1,4 +1,6 @@
-#Qloat APK Archive
+import base64
+import uuid
+from typing import List
 
 from main import *
 from src.function import *
@@ -33,13 +35,13 @@ async def file_upload(password: str = Form(media_type="application/json"), files
             password = base64.b64encode(bytes(password, 'utf-8')).hex()
 
             redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
-            redis_file_db_password.set(file_uuid, password)
+            await redis_file_db_password.set(file_uuid, password)
             redis_file_db_password.close()
         else:
             return ORJSONResponse(content={"fu": "ck"})
 
         redis_file_db_name = redis.StrictRedis(host='localhost', port=6379, db=0)
-        redis_file_db_name.set(file_uuid, file_name)
+        await redis_file_db_name.set(file_uuid, file_name)
         redis_file_db_name.close()
 
         with open(f"{FILE_PATH_QLOAT}/{file_uuid}", "wb") as file_save:
@@ -54,4 +56,3 @@ async def file_upload(password: str = Form(media_type="application/json"), files
         file_direct_list.append(f"{SERVER_URL}/file/download/{file_uuid}/?file={file_name_str}")
 
     return ORJSONResponse(content={"file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)
-#end
