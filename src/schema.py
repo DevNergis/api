@@ -9,3 +9,8 @@ class cdt_(BaseModel):
 
 class mealservicedietinfo_(BaseModel):
     SchoolName: str
+
+class classtime_(BaseModel):
+    SchoolName: str
+    ClassName: str
+    ClassTime: str

@@ -1,12 +1,12 @@
 from main import *
 from src.function import *
 from src.schema import *
+import requests
 
 router = APIRouter(prefix="/v1/school", tags=["school"])
 
 @router.post("/meal")
 async def mealservicedietinfo(body: mealservicedietinfo_):
-    import requests
 
     url = f"https://open.neis.go.kr/hub/schoolInfo?KEY={OPEN_NEIS_API_KEY}&Type=json&pIndex=1&pSize=10&SCHUL_NM={body.SchoolName}"
     request = requests.get(url=url)
@@ -26,3 +26,7 @@ async def mealservicedietinfo(body: mealservicedietinfo_):
         ddish_nm = rrr['DDISH_NM']
         ddish_nm_list = ddish_nm.replace('<br/>', '\n')
         return ORJSONResponse(content={"SchoolName":f"{body.SchoolName}", "SchoolMeal":[ddish_nm_list]}, status_code=200)
+
+@router.post("classtime")
+async def classtime(body: classtime_):
+    return ORJSONResponse("준비중")
