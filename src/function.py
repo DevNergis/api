@@ -1,15 +1,17 @@
 from datetime import *
-from yt_dlp import YoutubeDL
 from io import BytesIO
-import dotenv, requests
+import dotenv
 import redis
+import requests
+from yt_dlp import YoutubeDL
+from pytz import timezone
 
 FILE_PATH = dotenv.get_key(".env", "FILE_PATH")
 OPEN_NEIS_API_KEY = dotenv.get_key(".env", "OPEN_NEIS_API_KEY")
 YDL_OPTIONS = dotenv.get_key(".env", "YDL_OPTIONS")
 HEADERS = dotenv.get_key(".env", "HEADERS")
 SERVER_URL = dotenv.get_key(".env", "SERVER_URL")
-DATE = datetime.now().strftime('%Y%m%d')
+DATE = datetime.now(timezone('Asia/Seoul')).strftime('%Y%m%d')
 DATE_QLOAT = datetime.now()
 QLOAT_PASSWORD = dotenv.get_key(".env", "QLOAT_PASSWORD")
 FILE_PATH_QLOAT = dotenv.get_key(".env", "FILE_PATH_QLOAT")
