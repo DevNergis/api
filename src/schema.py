@@ -1,16 +1,12 @@
 from pydantic import BaseModel
 
 
-# noinspection PyPep8Naming
-class cdt_(BaseModel):
-    server_name: str
-    invite_link: str
-    random: bool
+class SchemaMealInfo(BaseModel):
+    school_name: str
+    date: str | None
 
-class mealservicedietinfo_(BaseModel):
-    SchoolName: str
 
-class classtime_(BaseModel):
-    SchoolName: str
-    ClassName: str
-    ClassTime: str
+class SchemaClassTimeInfo(BaseModel):
+    school_name: str
+    class_name: str
+    class_time: str

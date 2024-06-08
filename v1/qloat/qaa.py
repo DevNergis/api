@@ -4,9 +4,10 @@ from typing import List
 
 from main import *
 from src.function import *
-from src.schema import *
+
 
 router = APIRouter(prefix="/v1/qloat", tags=["qloat"])
+
 
 @router.get("/archive/download/{file_id}")
 async def file_download(file_id: str):
@@ -18,6 +19,8 @@ async def file_download(file_id: str):
 
     return FileResponse(f"{FILE_PATH_QLOAT}/{file_id}", filename=file_name)
 
+
+# noinspection PyShadowingNames
 @router.post("/archive/upload")
 async def file_upload(password: str = Form(media_type="application/json"), files: List[UploadFile] = File()):
     file_size_list = list()
@@ -45,7 +48,7 @@ async def file_upload(password: str = Form(media_type="application/json"), files
         redis_file_db_name.close()
 
         with open(f"{FILE_PATH_QLOAT}/{file_uuid}", "wb") as file_save:
-            file_save.write(file.file.read(20*1024*1024))
+            file_save.write(file.file.read(20 * 1024 * 1024))
 
         file.file.close()
 
@@ -55,4 +58,6 @@ async def file_upload(password: str = Form(media_type="application/json"), files
         file_url_list.append(f"{SERVER_URL}/file/download/{file_uuid}")
         file_direct_list.append(f"{SERVER_URL}/file/download/{file_uuid}/?file={file_name_str}")
 
-    return ORJSONResponse(content={"file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list, "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)
+    return ORJSONResponse(
+        content={"file_size": file_size_list, "file_uuid": file_uuid_list, "file_name": file_name_list,
+                 "file_url": file_url_list, "file_direct": file_direct_list}, status_code=200)

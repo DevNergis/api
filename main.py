@@ -17,6 +17,7 @@ app = FastAPI(
     version="7.3.6",
     default_response_class=ORJSONResponse)
 
+# noinspection PyTypeChecker
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -48,6 +49,7 @@ async def status():
     return PlainTextResponse("Hi!")
 
 
+# noinspection PyShadowingNames
 @app.get('/ip')
 async def ip(ip: str = Header(None, alias='X-Forwarded-For')):
     return PlainTextResponse(content=f"{ip}")

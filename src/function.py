@@ -23,8 +23,10 @@ PASSWORD_DB = dotenv.get_key(".env", "PASSWORD_DB")
 x_agent_did = dotenv.get_key(".env", "x-agent-did")
 Authorization = dotenv.get_key(".env", "Authorization")
 
+
 def pool(db_num: int = 0):
     return redis.ConnectionPool().from_url(f"{DB}/{db_num}")
+
 
 def ydl_url(url: str):
     with YoutubeDL(YDL_OPTIONS) as ydl:
@@ -33,16 +35,18 @@ def ydl_url(url: str):
     url = info['formats'][0]['url']
     return url
 
+
+# noinspection PyTypeChecker
 def ydl_cache(url: str, name: str):
     with requests.get(url, stream=True, headers=HEADERS) as file_request:
         content = BytesIO()
-        
-        for chunk in file_request.iter_content(chunk_size=1*1024*1024):
+
+        for chunk in file_request.iter_content(chunk_size=1 * 1024 * 1024):
             content.write(chunk)
 
         with open(f"{name}", "wb") as file_save:
             file_save.write(content.getbuffer())
-        
+
         content.seek(0)
 
     return url, name

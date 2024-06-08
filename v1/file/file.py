@@ -7,7 +7,6 @@ from redis import Redis
 
 from main import *
 from src.function import *
-from src.schema import *
 import aiofiles
 from fastapi.security.api_key import APIKeyHeader
 from fastapi import Security
@@ -17,8 +16,10 @@ router = APIRouter(prefix="/v1/file", tags=["file"])
 password_header = APIKeyHeader(name="x-password", auto_error=False)
 
 
+# noinspection PyShadowingNames
 @router.get("/download/{file_id}")
-async def file_download(file_id: str, file: Union[str, None] = None, password: Union[str, None] = Security(password_header)):
+async def file_download(file_id: str, file: Union[str, None] = None,
+                        password: Union[str, None] = Security(password_header)):
     try:
         redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
         password_db = redis_file_db_password.get(file_id).decode('utf-8')
@@ -47,6 +48,7 @@ async def file_download(file_id: str, file: Union[str, None] = None, password: U
         return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
 
 
+# noinspection PyShadowingNames,PyUnboundLocalVariable
 @router.post("/upload")
 async def file_upload(files: List[UploadFile] = File(), password: Union[str, None] = Security(password_header)):
     file_size_list = list()
