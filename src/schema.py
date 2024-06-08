@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class SchemaMealInfo(BaseModel):
     school_name: str
-    date: str | None
+    date: str | None = None
 
 
 class SchemaClassTimeInfo(BaseModel):

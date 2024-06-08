@@ -16,12 +16,8 @@ async def meal_info(body: SchemaMealInfo):
     rrr = rr['row'][-1]
     atpt_ofcdc_sc_code = rrr['ATPT_OFCDC_SC_CODE']
     sd_schul_code = rrr['SD_SCHUL_CODE']
-    print(atpt_ofcdc_sc_code)
-    print(sd_schul_code)
-
-    if body.date:
+    if body.date is None:
         body.date = DATE
-
     url = f"https://open.neis.go.kr/hub/mealServiceDietInfo?KEY={OPEN_NEIS_API_KEY}&Type=json&pIndex=1&pSize=10&ATPT_OFCDC_SC_CODE={atpt_ofcdc_sc_code}&SD_SCHUL_CODE={sd_schul_code}&MLSV_FROM_YMD={body.date}&MLSV_TO_YMD={body.date}"
     request = requests.get(url=url)
     if request.text == """{"RESULT":{"CODE":"INFO-200","MESSAGE":"해당하는 데이터가 없습니다."}}""":
