@@ -9,6 +9,7 @@
     <orderEntry type="library" name="beacon" level="application" />
   </component>
   <component name="PackageRequirementsSettings">
+    <option name="versionSpecifier" value="버전 지정 안 함" />
     <option name="removeUnused" value="true" />
     <option name="modifyBaseFiles" value="true" />
   </component>

@@ -7,4 +7,5 @@ pydantic
 python-dotenv
 starlette
 pytz
-yt-dlp
+
+aioredis
