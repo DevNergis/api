@@ -16,7 +16,7 @@ router = APIRouter(prefix="/v1/file", tags=["file"])
 password_header = APIKeyHeader(name="x-password", auto_error=False)
 
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyShadowingNames
 @router.get("/download/{file_id}")
 async def file_download(file_id: str, file: Union[str, None] = None,
                         password: Union[str, None] = Security(password_header)):
