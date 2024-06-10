@@ -23,8 +23,6 @@ async def file_download(file_id: str, file: Union[str, None] = None,
     try:
         redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
         password_db = await redis_file_db_password.get(file_id)
-        if password_db is None:
-            raise TypeError
         password_db = password_db.decode('utf-8')
         await redis_file_db_password.close()
         password_db = bytes.fromhex(password_db).decode('utf-8')
@@ -36,7 +34,7 @@ async def file_download(file_id: str, file: Union[str, None] = None,
             pass
         else:
             return HTMLResponse("Wrong Password", status_code=403)
-    finally:
+    except AttributeError:
         pass
 
     if file is None:
