@@ -16,7 +16,7 @@ router = APIRouter(prefix="/v1/file", tags=["file"])
 password_header = APIKeyHeader(name="x-password", auto_error=False)
 
 
-# noinspection PyShadowingNames
+# noinspection PyShadowingNames,PyUnresolvedReferences
 @router.get("/download/{file_id}")
 async def file_download(file_id: str, file: Union[str, None] = None,
                         password: Union[str, None] = Security(password_header)):
@@ -39,8 +39,7 @@ async def file_download(file_id: str, file: Union[str, None] = None,
 
     if file is None:
         redis_file_db_name: Redis = redis.Redis(connection_pool=pool(FILE_DB))
-        file_name = await redis_file_db_name.get(file_id)
-        file_name = file_name.decode('utf-8')
+        file_name = await redis_file_db_name.get(file_id).decode('utf-8')
         await redis_file_db_name.close()
         file_name = bytes.fromhex(file_name).decode('utf-8')
         file_name = base64.b64decode(file_name).decode("utf-8")
