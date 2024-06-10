@@ -23,7 +23,8 @@ async def file_download(file_id: str, file: Union[str, None] = None,
     try:
         redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
         password_db = await redis_file_db_password.get(file_id)
-        print(password_db)
+        if password_db is None:
+            pass
         password_db = password_db.decode('utf-8')
         await redis_file_db_password.close()
         password_db = bytes.fromhex(password_db).decode('utf-8')
@@ -40,7 +41,7 @@ async def file_download(file_id: str, file: Union[str, None] = None,
 
     if file is None:
         redis_file_db_name: Redis = redis.Redis(connection_pool=pool(FILE_DB))
-        file_name = await redis_file_db_name.get(file_id);
+        file_name = await redis_file_db_name.get(file_id)
         file_name = file_name.decode('utf-8')
         await redis_file_db_name.close()
         file_name = bytes.fromhex(file_name).decode('utf-8')
