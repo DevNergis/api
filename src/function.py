@@ -1,7 +1,7 @@
 from datetime import *
 from io import BytesIO
 import dotenv
-import redis
+import aioredis as redis
 import requests
 from yt_dlp import YoutubeDL
 from pytz import timezone

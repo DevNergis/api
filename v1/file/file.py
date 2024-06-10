@@ -3,7 +3,7 @@ import uuid
 from math import ceil
 from typing import Union, List
 
-from redis import Redis
+from aioredis import Redis
 
 from main import *
 from src.function import *
@@ -22,8 +22,8 @@ async def file_download(file_id: str, file: Union[str, None] = None,
                         password: Union[str, None] = Security(password_header)):
     try:
         redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
-        password_db = redis_file_db_password.get(file_id).decode('utf-8')
-        redis_file_db_password.close()
+        password_db = await redis_file_db_password.get(file_id).decode('utf-8')
+        await redis_file_db_password.close()
         password_db = bytes.fromhex(password_db).decode('utf-8')
         password_db = base64.b64decode(password_db).decode("utf-8")
 
@@ -38,8 +38,8 @@ async def file_download(file_id: str, file: Union[str, None] = None,
 
     if file is None:
         redis_file_db_name: Redis = redis.Redis(connection_pool=pool(FILE_DB))
-        file_name = redis_file_db_name.get(file_id).decode('utf-8')
-        redis_file_db_name.close()
+        file_name = await redis_file_db_name.get(file_id).decode('utf-8')
+        await redis_file_db_name.close()
         file_name = bytes.fromhex(file_name).decode('utf-8')
         file_name = base64.b64decode(file_name).decode("utf-8")
 
@@ -75,11 +75,11 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
 
             redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
             await redis_file_db_password.set(file_uuid, password)
-            redis_file_db_password.close()
+            await redis_file_db_password.close()
 
         redis_file_db_name = redis.Redis(connection_pool=pool(FILE_DB))
         await redis_file_db_name.set(file_uuid, file_name)
-        redis_file_db_name.close()
+        await redis_file_db_name.close()
 
         chunk = BytesIO()
         chunk_range = range(ceil(file.size / (1024 * 1024 * 2)))
