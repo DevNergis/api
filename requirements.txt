@@ -1,7 +1,7 @@
 fastapi[all]
 redis
 requests
-aiohttp[speedups]
+aiohttp[speedups] >= 3.9.2
 aiofiles
 pydantic
 python-dotenv
