@@ -49,3 +49,4 @@ class SchemaClassTimeInfo(BaseModel):
 class FolderMake(BaseModel):
     folder_name: str = "New Folder"
     folder_password: str | None = None
+    folder_admin_password: str
