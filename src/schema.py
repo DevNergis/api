@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-
 __folder_json__ = {
     "folder_uuid": "hex(uuid)",
     "folder_name": "hex(base85(input(folder_name))",
@@ -16,7 +15,6 @@ __folder_json__ = {
         }
     ]
 }
-
 
 folder_json = {
     "folder_uuid": "hex(uuid)",
@@ -50,3 +48,7 @@ class FolderMake(BaseModel):
     folder_name: str = "New Folder"
     folder_password: str | None = None
     folder_admin_password: str
+
+
+class Encryption(BaseModel):
+    data: str
