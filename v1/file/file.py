@@ -81,7 +81,7 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
             with open(file_path, 'rb') as file_1:
                 file_1.seek(start)
                 while True:
-                    data = file_1.read(1024)
+                    data = file_1.read(1024 * 1024)
                     if not data:
                         break
                     yield data
