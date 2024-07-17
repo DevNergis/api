@@ -11,7 +11,7 @@ import aiofiles
 from fastapi.security.api_key import APIKeyHeader
 from fastapi import Security
 
-router = APIRouter(prefix="/v1/file", tags=["file"])
+router = APIRouter(prefix="/file", tags=["file"])
 
 password_header = APIKeyHeader(name="x-password", auto_error=False)
 
