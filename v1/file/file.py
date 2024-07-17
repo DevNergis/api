@@ -64,6 +64,8 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
 
         content_length = end - start
         headers = {
+            "Content-Disposition": f"attachment;filename={file}",
+            "Content-Type": "application/octet-stream",
             "Content-Range": f"bytes {start}-{end}/{file_size}",
             "Content-Length": str(content_length),
             "Accept-Ranges": "bytes",
