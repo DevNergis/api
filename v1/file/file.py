@@ -55,7 +55,7 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
         if range_header:
             bytes_range = range_header.removeprefix("bytes=").split("-")
             start = int(bytes_range[0])
-            end = file_size if len(bytes_range) > 2 else int(bytes_range[1])
+            end = file_size if len(bytes_range) else file_size + 1024
         else:
             start, end = 0, file_size
 
