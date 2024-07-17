@@ -1,3 +1,3 @@
-from src import function, schema
+from src import function, schema, func2
 
-__all__ = [function, schema]
+__all__ = [function, schema, func2]

@@ -6,7 +6,7 @@ from math import ceil
 from io import BytesIO
 import aiohttp
 
-router = APIRouter(prefix="/v1/ipfs", tags=["ipfs"])
+router = APIRouter(prefix="/ipfs", tags=["ipfs"])
 
 
 # noinspection PyShadowingNames

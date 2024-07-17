@@ -1,10 +1,14 @@
 from datetime import *
 from io import BytesIO
 import dotenv
-import aioredis as redis
+import redis.asyncio as redis
 import requests
 from yt_dlp import YoutubeDL
 from pytz import timezone
+from typing import *
+import hashlib
+import secrets
+import hmac
 
 FILE_PATH = dotenv.get_key(".env", "FILE_PATH")
 OPEN_NEIS_API_KEY = dotenv.get_key(".env", "OPEN_NEIS_API_KEY")
@@ -20,8 +24,36 @@ DB = dotenv.get_key(".env", "DB")
 FILE_DB = dotenv.get_key(".env", "FILE_DB")
 PASSWORD_DB = dotenv.get_key(".env", "PASSWORD_DB")
 
+FOLDER_DB = dotenv.get_key(".env", "FOLDER_DB")
+SALT_DB = dotenv.get_key(".env", "SALT_DB")
+
 x_agent_did = dotenv.get_key(".env", "x-agent-did")
 Authorization = dotenv.get_key(".env", "Authorization")
+
+
+class Security:
+    def __init__(self, password: str, salt: bytes = None, password_hash: bytes = None, algorithm: str = 'sha3_256',
+                 iterations: int = 100000, dklen: Optional[int] = None, to_hex: bool = False) -> None:
+        self.password = password.encode("utf-8")
+        self.salt = salt
+        self.password_hash = password_hash
+        self.algorithm = algorithm
+        self.iterations = iterations
+        self.dklen = dklen
+        self.to_hex = to_hex
+
+    def hash_new_password(self) -> Tuple[bytes, bytes] | Tuple[str, str]:
+        salt = secrets.token_bytes(16)
+        password_hash = hashlib.pbkdf2_hmac(self.algorithm, self.password, salt, self.iterations, self.dklen)
+        if self.to_hex:
+            return salt.hex(), password_hash.hex()
+        else:
+            return salt, password_hash
+
+    def is_correct_password(self) -> bool:
+        return hmac.compare_digest(self.password_hash,
+                                   hashlib.pbkdf2_hmac(self.algorithm, self.password, self.salt, self.iterations,
+                                                       self.dklen))
 
 
 def pool(db_num: int = 0):

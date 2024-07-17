@@ -6,7 +6,7 @@ from main import *
 from src.function import *
 
 
-router = APIRouter(prefix="/v1/qloat", tags=["qloat"])
+router = APIRouter(prefix="/qloat", tags=["qloat"])
 
 
 @router.get("/archive/download/{file_id}")

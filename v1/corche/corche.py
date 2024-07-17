@@ -2,7 +2,7 @@ import random
 
 from main import *
 
-router = APIRouter(prefix="/v1/corche", tags=["corche"])
+router = APIRouter(prefix="/corche", tags=["corche"])
 
 
 @router.get("/today_H_corche")

@@ -2,13 +2,8 @@ from fastapi import *
 from fastapi.responses import *
 from starlette.middleware.cors import CORSMiddleware
 
-from src.function import ydl_url
-from v1.corche import corche
-from v1.file import file
-from v1.img import sfw
-from v1.ipfs import ipfs
-from v1.qloat import qaa
-from v1.school import school
+import v1
+import v2
 
 app = FastAPI(
     title="Nergis API",
@@ -26,13 +21,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(qaa.router)
-app.include_router(school.router)
-app.include_router(sfw.router)
-app.include_router(file.router)
-app.include_router(ipfs.router)
-app.include_router(corche.router)
-
+app.include_router(v1.router)
+app.include_router(v2.router)
 
 @app.get("/")
 async def main():

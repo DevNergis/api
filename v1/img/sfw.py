@@ -2,7 +2,7 @@ import random
 
 from main import *
 
-router = APIRouter(prefix="/v1/img", tags=["img"])
+router = APIRouter(prefix="/img", tags=["img"])
 
 
 # noinspection PyShadowingNames

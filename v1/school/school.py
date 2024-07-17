@@ -3,7 +3,7 @@ from src.function import *
 from src.schema import *
 import requests
 
-router = APIRouter(prefix="/v1/school", tags=["school"])
+router = APIRouter(prefix="/school", tags=["school"])
 
 
 # noinspection SpellCheckingInspection,PyUnboundLocalVariable
