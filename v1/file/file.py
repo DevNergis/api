@@ -1,7 +1,6 @@
 import base64
 import uuid
 import os
-import anyio
 from math import ceil
 
 from aioredis import Redis
@@ -79,7 +78,7 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
         }
 
         async def content():
-            async with anyio.open_file(file_path, 'rb') as file_1:
+            async with aiofiles.open(file_path, 'rb') as file_1:
                 await file_1.seek(start)
                 while True:
                     data = await file_1.read(1024 * 1024)
