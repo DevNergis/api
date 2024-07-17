@@ -29,11 +29,11 @@ async def file_download(file_id: str, file: Union[str, None] = None,
         password_db = base64.b64decode(password_db).decode("utf-8")
 
         if password is None:
-            return HTMLResponse("Need Password", status_code=403)
+            yield HTMLResponse("Need Password", status_code=403)
         elif password == password_db:
             pass
         else:
-            return HTMLResponse("Wrong Password", status_code=403)
+            yield HTMLResponse("Wrong Password", status_code=403)
     except AttributeError:
         pass
 
@@ -45,9 +45,9 @@ async def file_download(file_id: str, file: Union[str, None] = None,
         file_name = bytes.fromhex(file_name).decode('utf-8')
         file_name = base64.b64decode(file_name).decode("utf-8")
 
-        return FileResponse(f"{FILE_PATH}/{file_id}", filename=file_name, status_code=206)
+        yield FileResponse(f"{FILE_PATH}/{file_id}", filename=file_name)
     else:
-        return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
+        yield FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
 
 
 # noinspection PyShadowingNames,PyUnboundLocalVariable
