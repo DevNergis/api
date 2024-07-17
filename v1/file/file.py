@@ -48,7 +48,7 @@ async def file_download(file_id: str, file: Union[str, None] = None,
 
         fd = open(f"{FILE_PATH}/{file_id}", "rb")
 
-        return StreamingResponse(fd, background=BackgroundTasks(fd.close()))
+        return StreamingResponse(fd)
     else:
         return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
 
