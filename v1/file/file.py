@@ -10,9 +10,8 @@ from src.function import *
 import aiofiles
 from fastapi.security.api_key import APIKeyHeader
 from fastapi import Security
-import v2
 
-router = APIRouter(prefix="/file", tags=["file"])
+router = APIRouter(prefix="/v1/file", tags=["file"])
 
 password_header = APIKeyHeader(name="x-password", auto_error=False)
 
@@ -46,9 +45,7 @@ async def file_download(file_id: str, file: Union[str, None] = None,
         file_name = bytes.fromhex(file_name).decode('utf-8')
         file_name = base64.b64decode(file_name).decode("utf-8")
 
-        fd = open(f"{FILE_PATH}/{file_id}", "rb")
-
-        return StreamingResponse(fd)
+        return FileResponse(f"{FILE_PATH}/{file_id}", filename=file_name)
     else:
         return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
 
