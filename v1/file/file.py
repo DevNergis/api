@@ -18,8 +18,8 @@ password_header = APIKeyHeader(name="x-password", auto_error=False)
 
 # noinspection PyUnresolvedReferences,PyShadowingNames
 @router.get("/download/{file_id}")
-async def file_download(request: Request, file_id: str, file: Union[str, None] = None,
-                        password: Union[str, None] = Security(password_header)):
+async def file_download(file_id: str, file: Union[str, None] = None,
+                        password: Union[str, None] = Security(password_header), ran1ge: str = Header(None)):
     try:
         redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
         password_db = await redis_file_db_password.get(file_id)
@@ -51,13 +51,9 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
         file_path = f"{FILE_PATH}/{file_id}"
         file_size = os.path.getsize(file_path)
 
-        range_header = request.headers.get('Range', None)
-        if range_header:
-            bytes_range = range_header.removeprefix("bytes=").split("-")
-            start = int(bytes_range[0])
-            end = file_size if len(bytes_range) else file_size + 1024
-        else:
-            start, end = 0, file_size
+        start, end = ran1ge.replace("bytes=", "").split("-")
+        start = int(start)
+        end = int(end) if end else start + 1024*1024
 
         if start >= file_size:
             return HTTPException(status_code=416, detail="Range not satisfiable")
