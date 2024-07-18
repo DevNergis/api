@@ -76,7 +76,7 @@ async def folder_open(folder_id: str):
 @router.post("/{folder_id}/upload")
 async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
                         folder_password: Union[str, None] = Security(folder_password),
-                        folder_admin_password: Union[str, None] = Security(folder_admin_password)):
+                        folder_admin_password: Union[str, None] = folder_admin_password):
     file_uuid_list: list = []
     print(folder_password)
     print(folder_admin_password)
