@@ -12,8 +12,8 @@ from src import function, schema
 
 router = APIRouter(prefix="/folder", tags=["folder"], default_response_class=responses.UJSONResponse)
 
-X_F_Passwd = fastapi.Header(default=None)
-X_A_Passwd = fastapi.Header(default=None)
+folder_password = fastapi.Header(default=None)
+folder_admin_password = fastapi.Header(default=None)
 
 
 @router.post("/make")
@@ -70,13 +70,14 @@ async def folder_open(folder_id: str):
     return json_value
 
 
+# noinspection PyPep8Naming
 @router.post("/{folder_id}/upload")
 async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
-                        folder_password: Union[str, None] = X_F_Passwd,
-                        folder_admin_password: Union[str, None] = X_A_Passwd):
+                        X_F_Passwd: Union[str, None] = folder_password,
+                        X_A_Passwd: Union[str, None] = folder_admin_password):
     file_uuid_list: list = []
-    print(folder_password)
-    print(folder_admin_password)
+    print(X_F_Passwd)
+    print(X_A_Passwd)
 
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
     json_value = ujson.loads(await DB.get(folder_id))
