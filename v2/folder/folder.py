@@ -109,10 +109,13 @@ async def folder_download(folder_id: str, file_uuid: str):
     file_list: list = json_value['folder_contents']
 
     for file_list_data in file_list:
+        print(file_list_data)
         if file_list_data['file_uuid'] is file_uuid:
             file_name = file_list_data['file_name']
+            print(file_name)
 
     if file_name is "":
         return HTTPException(404, "파일이 존제하지 않습니다!")
 
+    await DB.close()
     return fastapi.responses.FileResponse(f"{function.FOLDER_PATH}/{file_uuid}", filename=file_name)
