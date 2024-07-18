@@ -9,6 +9,7 @@ from typing import *
 import hashlib
 import secrets
 import hmac
+import base64
 
 FILE_PATH = dotenv.get_key(".env", "FILE_PATH")
 OPEN_NEIS_API_KEY = dotenv.get_key(".env", "OPEN_NEIS_API_KEY")
@@ -55,6 +56,17 @@ class Security:
         return hmac.compare_digest(self.password_hash,
                                    hashlib.pbkdf2_hmac(self.algorithm, self.password, self.salt, self.iterations,
                                                        self.dklen))
+
+
+class Obfuscation:
+    def __init__(self, data: str):
+        self.data = data
+
+    def on(self):
+        return base64.b85encode(self.data.encode()).hex()
+
+    def off(self):
+        return base64.b85decode(bytes.fromhex(self.data).decode()).decode()
 
 
 def pool(db_num: int = 0):

@@ -24,9 +24,9 @@ folder_admin_password = APIKeyHeader(name="X-A_Passwd", auto_error=False)
 async def folder_make(body: schema.FolderMake):
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
 
-    folder_uuid = str(uuid.uuid4())
+    folder_uuid = function.Obfuscation(str(uuid.uuid4())).on()
     key = hashlib.md5(body.folder_name.encode() + folder_uuid.encode()).hexdigest()
-    folder_name = base64.b85encode(body.folder_name.encode()).hex()
+    folder_name = function.Obfuscation(body.folder_name).on()
 
     if body.folder_password is None:
         DB_SALT = await redis.Redis(connection_pool=function.pool(function.SALT_DB))
@@ -54,7 +54,7 @@ async def folder_make(body: schema.FolderMake):
         await DB_SALT.close()
 
     await DB.set(key, ujson.dumps({
-        "folder_uuid": folder_uuid.encode().hex(),
+        "folder_uuid": folder_uuid,
         "folder_name": folder_name,
         "folder_password": folder_password_hash,
         "folder_admin_password": folder_admin_key_hash,
@@ -82,8 +82,8 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
     json_value = ujson.loads(await DB.get(folder_id))
 
     for file in files:
-        file_uuid = str(uuid.uuid4())
-        file_name = base64.b64encode(bytes(file.filename, 'utf-8')).hex()
+        file_uuid = function.Obfuscation(str(uuid.uuid4())).on()
+        file_name = function.Obfuscation(file.filename).on()
         file_size = file.size
 
         json_value['folder_contents'].append({"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
@@ -109,10 +109,8 @@ async def folder_download(folder_id: str, file_uuid: str):
     file_list: list = json_value['folder_contents']
 
     for file_list_data in file_list:
-        print(file_list_data['file_uuid'])
-        if file_list_data['file_uuid'] == file_uuid:
-            file_name = file_list_data['file_name']
-            print(file_name)
+        if function.Obfuscation(file_list_data['file_uuid']).off() == file_uuid:
+            file_name = function.Obfuscation(file_list_data['file_name']).off()
 
     if file_name is "":
         return HTTPException(404, "파일이 존제하지 않습니다!")
