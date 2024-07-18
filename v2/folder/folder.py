@@ -1,11 +1,8 @@
 import hashlib
 import uuid
-import base64
-
 import aiofiles
 import fastapi.responses
 import ujson
-
 from typing import *
 from fastapi import *
 from fastapi.security.api_key import APIKeyHeader
@@ -19,7 +16,7 @@ router = APIRouter(prefix="/folder", tags=["folder"], default_response_class=res
 folder_password = APIKeyHeader(name="X-F_Passwd", auto_error=False)
 folder_admin_password = APIKeyHeader(name="X-A_Passwd", auto_error=False)
 
-
+Depends
 @router.post("/make")
 async def folder_make(body: schema.FolderMake):
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
@@ -76,13 +73,20 @@ async def folder_open(folder_id: str):
 
 @router.post("/{folder_id}/upload")
 async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
-                        folder_password: Union[str, None] = Security(folder_password),
+                        folder_password: Union[str, None] = Depends(folder_password),
                         folder_admin_password: Union[str, None] = Security(folder_admin_password)):
+    file_uuid_list: list = []
+    print(folder_password)
+
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
     json_value = ujson.loads(await DB.get(folder_id))
 
     for file in files:
-        file_uuid = function.Obfuscation(str(uuid.uuid4())).on()
+        __uuid__ = str(uuid.uuid4())
+
+        file_uuid_list.append(__uuid__)
+
+        file_uuid = function.Obfuscation(__uuid__).on()
         file_name = function.Obfuscation(file.filename).on()
         file_size = file.size
 
@@ -92,11 +96,12 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
             for chunk in iter(lambda: file.file.read(1024), b""):
                 await f.write(chunk)
         await f.close()
+        await file.close()
 
     await DB.set(folder_id, ujson.dumps(json_value))
     await DB.close()
 
-    return {"asdasd": 123}
+    return {"file_uuid": file_uuid_list}
 
 
 @router.get("/{folder_id}/{file_uuid}")
