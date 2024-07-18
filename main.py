@@ -24,6 +24,7 @@ app.add_middleware(
 app.include_router(v1.router)
 app.include_router(v2.router)
 
+
 @app.get("/")
 async def main():
     return FileResponse("static/index.html")

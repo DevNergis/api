@@ -98,7 +98,8 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
             file_name = function.Obfuscation(file.filename).on()
             file_size = file.size
 
-            json_value['folder_contents'].append({"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
+            json_value['folder_contents'].append(
+                {"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
 
             async with aiofiles.open(f"{function.FOLDER_PATH}/{file_uuid}", "wb") as f:
                 for chunk in iter(lambda: file.file.read(1024), b""):
@@ -107,7 +108,6 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
             await file.close()
 
         await DB.set(folder_id, ujson.dumps(json_value))
-
 
         return {"file_uuid": file_uuid_list}
     else:

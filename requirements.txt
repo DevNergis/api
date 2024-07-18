@@ -1,11 +1,11 @@
-fastapi[all]
-redis
-requests
+fastapi[all]>=0.110.3
+redis>=5.0.5
+requests>=2.31.0
 aiohttp[speedups] >= 3.9.2
-aiofiles
-pydantic
-python-dotenv
-starlette
-pytz
-
-aioredis
+aiofiles>=23.2.1
+pydantic>=2.5.3
+python-dotenv>=1.0.1
+starlette>=0.37.2
+pytz>=2024.1
+aioredis>=2.0.1
+ujson>=5.10.0

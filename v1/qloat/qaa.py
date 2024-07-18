@@ -15,7 +15,7 @@ async def file_download(file_id: str):
     file_name = redis_file_db_name.get(file_id).decode('utf-8')
     file_name = bytes.fromhex(file_name).decode('utf-8')
     file_name = base64.b64decode(file_name).decode("utf-8")
-    redis_file_db_name.close()
+    await redis_file_db_name.close()
 
     return FileResponse(f"{FILE_PATH_QLOAT}/{file_id}", filename=file_name)
 
@@ -39,13 +39,13 @@ async def file_upload(password: str = Form(media_type="application/json"), files
 
             redis_file_db_password = redis.StrictRedis(host='localhost', port=6379, db=1)
             await redis_file_db_password.set(file_uuid, password)
-            redis_file_db_password.close()
+            await redis_file_db_password.close()
         else:
             return ORJSONResponse(content={"fu": "ck"})
 
         redis_file_db_name = redis.StrictRedis(host='localhost', port=6379, db=0)
         await redis_file_db_name.set(file_uuid, file_name)
-        redis_file_db_name.close()
+        await redis_file_db_name.close()
 
         with open(f"{FILE_PATH_QLOAT}/{file_uuid}", "wb") as file_save:
             file_save.write(file.file.read(20 * 1024 * 1024))
