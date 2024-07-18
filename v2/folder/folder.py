@@ -14,7 +14,8 @@ from src import function, schema
 router = APIRouter(prefix="/folder", tags=["folder"], default_response_class=responses.UJSONResponse)
 
 folder_password = APIKeyHeader(name="X-F_Passwd", auto_error=False)
-folder_admin_password = APIKeyHeader(name="X-A_Passwd", auto_error=False)
+folder_admin_password = fastapi.Header(default=None)
+
 
 Depends
 @router.post("/make")
@@ -77,6 +78,7 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
                         folder_admin_password: Union[str, None] = Security(folder_admin_password)):
     file_uuid_list: list = []
     print(folder_password)
+    print(folder_admin_password)
 
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
     json_value = ujson.loads(await DB.get(folder_id))
