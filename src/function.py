@@ -69,7 +69,7 @@ class Obfuscation:
         return base64.b85decode(bytes.fromhex(self.data).decode()).decode()
 
     def hexoff(self):
-        return bytes.fromhex(self.data).decode()
+        return bytes.fromhex(self.data)
 
 
 def pool(db_num: int = 0):

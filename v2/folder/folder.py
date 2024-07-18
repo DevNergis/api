@@ -83,8 +83,8 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
 
     salt_json_value = await DB_SALT.json().get(json_value['folder_uuid'])
 
-    folder_admin_key_hash = function.Obfuscation(json_value['folder_admin_password'].decode()).hexoff()
-    folder_admin_key_salt = function.Obfuscation(salt_json_value['folder_admin_key_salt'].decode()).hexoff()
+    folder_admin_key_hash = function.Obfuscation(json_value['folder_admin_password']).hexoff()
+    folder_admin_key_salt = function.Obfuscation(salt_json_value['folder_admin_key_salt']).hexoff()
 
     if function.Security(X_A_Passwd, folder_admin_key_salt, folder_admin_key_hash).is_correct_password():
         for file in files:
