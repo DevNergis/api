@@ -110,7 +110,7 @@ async def folder_download(folder_id: str, file_uuid: str):
 
     for file_list_data in file_list:
         print(file_list_data['file_uuid'])
-        if file_list_data['file_uuid'] is file_uuid:
+        if file_list_data['file_uuid'] == file_uuid:
             file_name = file_list_data['file_name']
             print(file_name)
 
