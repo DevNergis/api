@@ -50,13 +50,13 @@ async def folder_make(body: schema.FolderMake):
                                   "folder_admin_key_salt": folder_admin_key_salt})
         await DB_SALT.close()
 
-    await DB.json().set(key, Path.root_path(), {
+    await DB.set(key, ujson.dumps({
         "folder_uuid": folder_uuid.encode().hex(),
         "folder_name": folder_name,
         "folder_password": folder_password_hash,
         "folder_admin_password": folder_admin_key_hash,
         "folder_contents": []
-    })
+    }))
     await DB.close()
 
     return {"folder_id": key, "folder_name": body.folder_name, "folder_url": f"{function.SERVER_URL}/v2/folder/{key}"}
@@ -65,7 +65,7 @@ async def folder_make(body: schema.FolderMake):
 @router.get("/{folder_id}")
 async def folder_open(folder_id: str):
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
-    json_value = await DB.json().jsonget(folder_id)
+    json_value = json.loads(await DB.json().jsonget(folder_id))
 
     return json_value
 
