@@ -78,7 +78,7 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
         file_name = base64.b64encode(bytes(file.filename, 'utf-8')).hex()
         file_size = file.size
 
-        json_value['folder_contents'] += ({"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
+        json_value['folder_contents'] += {"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size}
 
     await DB.json().set(folder_id, Path.root_path(),json_value)
 
