@@ -75,7 +75,7 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
                         folder_password: Union[str, None] = Security(folder_password),
                         folder_admin_password: Union[str, None] = Security(folder_admin_password)):
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
-    json_value = await DB.json().jsonget(folder_id)
+    json_value = ujson.loads(await DB.json().jsonget(folder_id))
 
     for file in files:
         file_uuid = str(uuid.uuid4())
