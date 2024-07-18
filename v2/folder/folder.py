@@ -54,7 +54,7 @@ async def folder_make(body: schema.FolderMake):
         "folder_name": folder_name,
         "folder_password": folder_password_hash,
         "folder_admin_password": folder_admin_key_hash,
-        "folder_contents": []
+        "folder_contents": list
     })
     await DB.close()
 
