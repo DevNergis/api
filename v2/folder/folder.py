@@ -65,7 +65,7 @@ async def folder_make(body: schema.FolderMake):
 @router.get("/{folder_id}")
 async def folder_open(folder_id: str):
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
-    json_value = json.loads(await DB.json().jsonget(folder_id))
+    json_value = ujson.loads(await DB.json().jsonget(folder_id))
 
     return json_value
 
