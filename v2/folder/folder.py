@@ -80,8 +80,10 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
     DB_SALT = await redis.Redis(connection_pool=function.pool(function.SALT_DB))
 
     json_value = ujson.loads(await DB.get(folder_id))
-
     salt_json_value = await DB_SALT.json().get(json_value['folder_uuid'])
+
+    await DB.close()
+    await DB_SALT.close()
 
     folder_admin_key_hash = function.Obfuscation(json_value['folder_admin_password']).hexoff()
     folder_admin_key_salt = function.Obfuscation(salt_json_value['folder_admin_key_salt']).hexoff()
@@ -105,7 +107,7 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
             await file.close()
 
         await DB.set(folder_id, ujson.dumps(json_value))
-        await DB.close()
+
 
         return {"file_uuid": file_uuid_list}
     else:
