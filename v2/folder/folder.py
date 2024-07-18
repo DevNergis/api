@@ -50,13 +50,13 @@ async def folder_make(body: schema.FolderMake):
                                   "folder_admin_key_salt": folder_admin_key_salt})
         await DB_SALT.close()
 
-    await DB.json().set(key, Path.root_path(), {
+    await DB.json().set(key, Path.root_path(), ujson.dumps({
         "folder_uuid": folder_uuid.encode().hex(),
         "folder_name": folder_name,
         "folder_password": folder_password_hash,
         "folder_admin_password": folder_admin_key_hash,
         "folder_contents": [None]
-    })
+    }))
     await DB.close()
 
     return {"folder_id": key, "folder_name": body.folder_name, "folder_url": f"{function.SERVER_URL}/v2/folder/{key}"}
