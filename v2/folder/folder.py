@@ -2,14 +2,18 @@ import hashlib
 import uuid
 import base64
 
-import fastapi
+from typing import *
 from fastapi import *
+from fastapi.security.api_key import APIKeyHeader
 import redis.asyncio as redis
 from redis.commands.json.path import Path
 
 from src import function, schema
 
-router = APIRouter(prefix="/folder", tags=["folder"], default_response_class=responses.ORJSONResponse)
+router = APIRouter(prefix="/folder", tags=["folder"], default_response_class=responses.UJSONResponse)
+
+folder_password = APIKeyHeader(name="X-F_Passwd", auto_error=False)
+folder_admin_password = APIKeyHeader(name="X-A_Passwd", auto_error=False)
 
 
 @router.post("/make")
@@ -41,7 +45,8 @@ async def folder_make(body: schema.FolderMake):
                                                                          to_hex=True).hash_new_password()
 
         await DB_SALT.json().set(folder_uuid.encode().hex(), Path.root_path(),
-                                 {"folder_password_salt": folder_password_salt, "folder_admin_key_salt": folder_admin_key_salt})
+                                 {"folder_password_salt": folder_password_salt,
+                                  "folder_admin_key_salt": folder_admin_key_salt})
         await DB_SALT.close()
 
     await DB.json().set(key, Path.root_path(), {
@@ -49,8 +54,9 @@ async def folder_make(body: schema.FolderMake):
         "folder_name": folder_name,
         "folder_password": folder_password_hash,
         "folder_admin_password": folder_admin_key_hash,
-        "folder_contents": None
+        "folder_contents": []
     })
+    await DB.close()
 
     return {"folder_id": key, "folder_name": body.folder_name, "folder_url": f"{function.SERVER_URL}/v2/folder/{key}"}
 
@@ -58,3 +64,22 @@ async def folder_make(body: schema.FolderMake):
 @router.get("/{folder_id}")
 async def folder_open(folder_id: str):
     return {"folder_id": folder_id}
+
+
+@router.post("/{folder_id}/upload")
+async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
+                        folder_password: Union[str, None] = Security(folder_password),
+                        folder_admin_password: Union[str, None] = Security(folder_admin_password)):
+    DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
+
+    for file in files:
+        file_uuid = str(uuid.uuid4())
+        file_name = base64.b64encode(bytes(file.filename, 'utf-8')).hex()
+        file_size = file.size
+
+        json_value = await DB.json().jsonget(folder_id)
+
+        json_value['folder_contents'].append({"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
+
+
+    return {"asdasd": 123}
