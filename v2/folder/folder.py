@@ -50,13 +50,13 @@ async def folder_make(body: schema.FolderMake):
                                   "folder_admin_key_salt": folder_admin_key_salt})
         await DB_SALT.close()
 
-    await DB.json().set(key, Path.root_path(), ujson.dumps({
+    await DB.json().set(key, Path.root_path(), {
         "folder_uuid": folder_uuid.encode().hex(),
         "folder_name": folder_name,
         "folder_password": folder_password_hash,
         "folder_admin_password": folder_admin_key_hash,
-        "folder_contents": [None]
-    }))
+        "folder_contents": []
+    })
     await DB.close()
 
     return {"folder_id": key, "folder_name": body.folder_name, "folder_url": f"{function.SERVER_URL}/v2/folder/{key}"}
@@ -79,8 +79,7 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
         file_name = base64.b64encode(bytes(file.filename, 'utf-8')).hex()
         file_size = file.size
 
-        json_value['folder_contents'].append(
-            ujson.dumps({"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size}))
+        json_value['folder_contents'].append([{"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size}])
 
     await DB.json().set(folder_id, Path.root_path(), json_value)
 
