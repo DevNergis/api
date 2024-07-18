@@ -68,6 +68,9 @@ class Obfuscation:
     def off(self):
         return base64.b85decode(bytes.fromhex(self.data).decode()).decode()
 
+    def hexoff(self):
+        return bytes.fromhex(self.data).decode()
+
 
 def pool(db_num: int = 0):
     return redis.ConnectionPool().from_url(f"{DB}/{db_num}")

@@ -32,7 +32,7 @@ async def folder_make(body: schema.FolderMake):
         folder_admin_key_salt, folder_admin_key_hash = function.Security(body.folder_admin_password,
                                                                          to_hex=True).hash_new_password()
 
-        await DB_SALT.json().set(folder_uuid.encode().hex(), Path.root_path(),
+        await DB_SALT.json().set(folder_uuid, Path.root_path(),
                                  {"folder_password_salt": None,
                                   "folder_admin_key_salt": folder_admin_key_salt})
         await DB_SALT.close()
@@ -44,7 +44,7 @@ async def folder_make(body: schema.FolderMake):
         folder_admin_key_salt, folder_admin_key_hash = function.Security(body.folder_admin_password,
                                                                          to_hex=True).hash_new_password()
 
-        await DB_SALT.json().set(folder_uuid.encode().hex(), Path.root_path(),
+        await DB_SALT.json().set(folder_uuid, Path.root_path(),
                                  {"folder_password_salt": folder_password_salt,
                                   "folder_admin_key_salt": folder_admin_key_salt})
         await DB_SALT.close()
@@ -73,36 +73,43 @@ async def folder_open(folder_id: str):
 # noinspection PyPep8Naming
 @router.post("/{folder_id}/upload")
 async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
-                        X_F_Passwd: Union[str, None] = folder_password,
                         X_A_Passwd: Union[str, None] = folder_admin_password):
     file_uuid_list: list = []
-    print(X_F_Passwd)
-    print(X_A_Passwd)
 
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
+    DB_SALT = await redis.Redis(connection_pool=function.pool(function.SALT_DB))
+
     json_value = ujson.loads(await DB.get(folder_id))
 
-    for file in files:
-        __uuid__ = str(uuid.uuid4())
+    salt_json_value = await DB_SALT.json().get(json_value['folder_uuid'])
 
-        file_uuid_list.append(__uuid__)
+    folder_admin_key_hash = function.Obfuscation(json_value['folder_admin_password']).hexoff()
+    folder_admin_key_salt = function.Obfuscation(salt_json_value['folder_admin_key_salt']).hexoff()
 
-        file_uuid = function.Obfuscation(__uuid__).on()
-        file_name = function.Obfuscation(file.filename).on()
-        file_size = file.size
+    if function.Security(X_A_Passwd, folder_admin_key_salt, folder_admin_key_hash).is_correct_password():
+        for file in files:
+            __uuid__ = str(uuid.uuid4())
 
-        json_value['folder_contents'].append({"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
+            file_uuid_list.append(__uuid__)
 
-        async with aiofiles.open(f"{function.FOLDER_PATH}/{file_uuid}", "wb") as f:
-            for chunk in iter(lambda: file.file.read(1024), b""):
-                await f.write(chunk)
-        await f.close()
-        await file.close()
+            file_uuid = function.Obfuscation(__uuid__).on()
+            file_name = function.Obfuscation(file.filename).on()
+            file_size = file.size
 
-    await DB.set(folder_id, ujson.dumps(json_value))
-    await DB.close()
+            json_value['folder_contents'].append({"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
 
-    return {"file_uuid": file_uuid_list}
+            async with aiofiles.open(f"{function.FOLDER_PATH}/{file_uuid}", "wb") as f:
+                for chunk in iter(lambda: file.file.read(1024), b""):
+                    await f.write(chunk)
+            await f.close()
+            await file.close()
+
+        await DB.set(folder_id, ujson.dumps(json_value))
+        await DB.close()
+
+        return {"file_uuid": file_uuid_list}
+    else:
+        HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
 
 
 @router.get("/{folder_id}/{file_uuid}")
