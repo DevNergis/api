@@ -5,7 +5,6 @@ import fastapi.responses
 import ujson
 from typing import *
 from fastapi import *
-from fastapi.security.api_key import APIKeyHeader
 import redis.asyncio as redis
 from redis.commands.json.path import Path
 
@@ -13,12 +12,10 @@ from src import function, schema
 
 router = APIRouter(prefix="/folder", tags=["folder"], default_response_class=responses.UJSONResponse)
 
-folder_password = APIKeyHeader(name="X-F_Passwd", auto_error=False)
-folder_admin_password = fastapi.Header(default=None)
+X_F_Passwd = fastapi.Header(default=None)
+X_A_Passwd = fastapi.Header(default=None)
 
 
-
-Depends
 @router.post("/make")
 async def folder_make(body: schema.FolderMake):
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
@@ -75,8 +72,8 @@ async def folder_open(folder_id: str):
 
 @router.post("/{folder_id}/upload")
 async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
-                        folder_password: Union[str, None] = Security(folder_password),
-                        folder_admin_password: Union[str, None] = folder_admin_password):
+                        folder_password: Union[str, None] = X_F_Passwd,
+                        folder_admin_password: Union[str, None] = X_A_Passwd):
     file_uuid_list: list = []
     print(folder_password)
     print(folder_admin_password)
