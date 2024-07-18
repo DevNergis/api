@@ -1,6 +1,7 @@
 import hashlib
 import uuid
 import base64
+import ujson
 
 from typing import *
 from fastapi import *
@@ -72,18 +73,15 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
                         folder_admin_password: Union[str, None] = Security(folder_admin_password)):
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
     json_value = await DB.json().jsonget(folder_id)
-    data_list = list
 
     for file in files:
         file_uuid = str(uuid.uuid4())
         file_name = base64.b64encode(bytes(file.filename, 'utf-8')).hex()
         file_size = file.size
 
-        data_list.append({"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
+        json_value['folder_contents'].append(
+            ujson.dumps({"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size}))
 
-    json_value['folder_contents'] = data_list
-    await DB.json().set(folder_id, Path.root_path(),json_value)
-
-
+    await DB.json().set(folder_id, Path.root_path(), json_value)
 
     return {"asdasd": 123}
