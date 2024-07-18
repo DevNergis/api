@@ -109,7 +109,7 @@ async def folder_download(folder_id: str, file_uuid: str):
     file_list: list = json_value['folder_contents']
 
     for file_list_data in file_list:
-        print(file_list_data)
+        print(file_list_data['file_uuid'])
         if file_list_data['file_uuid'] is file_uuid:
             file_name = file_list_data['file_name']
             print(file_name)
