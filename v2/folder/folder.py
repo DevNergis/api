@@ -1,6 +1,9 @@
 import hashlib
 import uuid
 import base64
+
+import aiofiles
+import fastapi.responses
 import ujson
 
 from typing import *
@@ -66,6 +69,7 @@ async def folder_make(body: schema.FolderMake):
 async def folder_open(folder_id: str):
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
     json_value = ujson.loads(await DB.get(folder_id))
+    await DB.close()
 
     return json_value
 
@@ -84,6 +88,31 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
 
         json_value['folder_contents'].append({"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
 
+        async with aiofiles.open(f"{function.FOLDER_PATH}/{file_uuid}", "wb") as f:
+            for chunk in iter(lambda: file.file.read(1024), b""):
+                await f.write(chunk)
+        await f.close()
+
     await DB.set(folder_id, ujson.dumps(json_value))
+    await DB.close()
 
     return {"asdasd": 123}
+
+
+@router.get("/{folder_id}/{file_uuid}")
+async def folder_download(folder_id: str, file_uuid: str):
+    file_name: str = ""
+
+    DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
+    json_value = ujson.loads(await DB.get(folder_id))
+
+    file_list: list = json_value['folder_contents']
+
+    for file_list_data in file_list:
+        if file_list_data['file_uuid'] is file_uuid:
+            file_name = file_list_data['file_name']
+
+    if file_name is "":
+        return HTTPException(404, "파일이 존제하지 않습니다!")
+
+    return fastapi.responses.FileResponse(f"{function.FOLDER_PATH}/{file_uuid}", filename=file_name)

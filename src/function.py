@@ -19,6 +19,7 @@ DATE = datetime.now(timezone('Asia/Seoul')).strftime('%Y%m%d')
 DATE_QLOAT = datetime.now()
 QLOAT_PASSWORD = dotenv.get_key(".env", "QLOAT_PASSWORD")
 FILE_PATH_QLOAT = dotenv.get_key(".env", "FILE_PATH_QLOAT")
+FOLDER_PATH = dotenv.get_key(".env", "FOLDER_PATH")
 
 DB = dotenv.get_key(".env", "DB")
 FILE_DB = dotenv.get_key(".env", "FILE_DB")
