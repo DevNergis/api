@@ -109,7 +109,7 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
 
         return {"file_uuid": file_uuid_list}
     else:
-        HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
+        return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
 
 
 @router.get("/{folder_id}/{file_uuid}")
