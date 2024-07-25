@@ -141,6 +141,6 @@ async def folder_download(folder_id: str, file_uuid: str, X_F_Passwd: Optional[s
         if file_name is "":
             return HTTPException(404, "파일이 존제하지 않습니다!")
 
-        return fastapi.responses.FileResponse(f"{function.FOLDER_PATH}/{file_uuid}", filename=file_name)
+        return fastapi.responses.FileResponse(f"{function.FOLDER_PATH}/{function.Obfuscation(file_list_data['file_uuid']).off()}", filename=file_name)
     else:
         return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
