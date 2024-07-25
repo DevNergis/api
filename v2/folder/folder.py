@@ -70,7 +70,7 @@ async def folder_open(folder_id: str):
     return json_value
 
 
-# noinspection PyPep8Naming
+# noinspection PyPep8Naming,DuplicatedCode
 @router.post("/{folder_id}/upload")
 async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
                         X_A_Passwd: Union[str, None] = folder_admin_password):
@@ -114,21 +114,33 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
         return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
 
 
+# noinspection DuplicatedCode,PyPep8Naming
 @router.get("/{folder_id}/{file_uuid}")
-async def folder_download(folder_id: str, file_uuid: str):
+async def folder_download(folder_id: str, file_uuid: str, X_F_Passwd: Optional[str] = folder_password):
     file_name: str = ""
 
     DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
+    DB_SALT = await redis.Redis(connection_pool=function.pool(function.SALT_DB))
+
     json_value = ujson.loads(await DB.get(folder_id))
+    salt_json_value = await DB_SALT.json().get(json_value['folder_uuid'])
+
+    await DB.close()
+    await DB_SALT.close()
 
     file_list: list = json_value['folder_contents']
 
-    for file_list_data in file_list:
-        if function.Obfuscation(file_list_data['file_uuid']).off() == file_uuid:
-            file_name = function.Obfuscation(file_list_data['file_name']).off()
+    folder_key_hash = function.Obfuscation(json_value['folder_password']).hexoff()
+    folder_key_salt = function.Obfuscation(salt_json_value['folder_password_salt']).hexoff()
 
-    if file_name is "":
-        return HTTPException(404, "파일이 존제하지 않습니다!")
+    if function.Security(X_F_Passwd, folder_key_salt, folder_key_hash).is_correct_password():
+        for file_list_data in file_list:
+            if function.Obfuscation(file_list_data['file_uuid']).off() == file_uuid:
+                file_name = function.Obfuscation(file_list_data['file_name']).off()
 
-    await DB.close()
-    return fastapi.responses.FileResponse(f"{function.FOLDER_PATH}/{file_uuid}", filename=file_name)
+        if file_name is "":
+            return HTTPException(404, "파일이 존제하지 않습니다!")
+
+        return fastapi.responses.FileResponse(f"{function.FOLDER_PATH}/{file_uuid}", filename=file_name)
+    else:
+        return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
