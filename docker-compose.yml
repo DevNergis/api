@@ -1,13 +1,13 @@
-﻿version: "3"
+﻿name: api.nergis.dev
 services:
-    api.nergis.dev:
-        stdin_open: true
-        tty: true
-        ports:
-            - 2002:2002
-        volumes:
-            - /mnt/sqlare/api-attachments/v1-file:/mnt/sqlare/api-attachments/v1-file
-            - /mnt/sqlare/api-attachments/v1-file/qloat:/mnt/sqlare/api-attachments/v1-file/qloat
-            - /mnt/sqlare/api-attachments/v2/folder:/mnt/sqlare/api-attachments/v2/folder
-        container_name: api.nergis.dev
-        image: api.nergis.dev:latest
+  api.nergis.dev:
+    stdin_open: true
+    tty: true
+    ports:
+      - 2002:2002
+    volumes:
+      - /mnt/sqlare/api-attachments/v1-file:/mnt/sqlare/api-attachments/v1-file
+      - /mnt/sqlare/api-attachments/v1-file/qloat:/mnt/sqlare/api-attachments/v1-file/qloat
+      - /mnt/sqlare/api-attachments/v2/folder:/mnt/sqlare/api-attachments/v2/folder
+    container_name: api.nergis.dev
+    image: api.nergis.dev:latest
