@@ -1,6 +1,6 @@
 ﻿FROM python:alpine3.19
 
-COPY . /
+COPY . .
 
 RUN pip install -r requirements.txt
 
