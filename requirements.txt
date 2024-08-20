@@ -10,3 +10,4 @@ pytz
 aioredis
 ujson
 hypercorn
+yt-dlp
