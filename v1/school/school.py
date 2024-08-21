@@ -26,7 +26,7 @@ async def meal_info(body: SchemaMealInfo):
     else:
         r = orjson.loads(request.text)
         rr = r['mealServiceDietInfo'][-1]
-        rrr = rr['row'][0]
+        rrr = rr['row'][-1]
         ddish_nm = rrr['DDISH_NM']
         ddish_nm_list = ddish_nm.replace('<br/>', '\n')
         return ORJSONResponse(content={"SchoolName": f"{body.school_name}", "SchoolMeal": [ddish_nm_list]},
