@@ -20,7 +20,6 @@ async def meal_info(body: SchemaMealInfo):
         body.date = DATE
     url = f"https://open.neis.go.kr/hub/mealServiceDietInfo?KEY={OPEN_NEIS_API_KEY}&Type=json&pIndex=1&pSize=10&ATPT_OFCDC_SC_CODE={atpt_ofcdc_sc_code}&SD_SCHUL_CODE={sd_schul_code}&MLSV_FROM_YMD={body.date}&MLSV_TO_YMD={N_DATE}"
     request = requests.get(url=url)
-    print(request.text)
     if request.text == """{"RESULT":{"CODE":"INFO-200","MESSAGE":"해당하는 데이터가 없습니다."}}""":
         return ORJSONResponse(content={"RESULT": {"CODE": "INFO-200", "MESSAGE": "해당하는 데이터가 없습니다."}}, status_code=200)
     else:
