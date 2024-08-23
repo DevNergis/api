@@ -55,16 +55,26 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
             range_end = int(range_end) if range_end else None
             file_path = f"{FILE_PATH}/{file_id}"
             file_size = os.path.getsize(file_path)
+            
             if range_start >= file_size:
                 raise HTTPException(status_code=416, detail="Requested range not satisfiable")
+            
             if range_end is None or range_end >= file_size:
                 range_end = file_size - 1
+
             content_length = range_end - range_start + 1
+
             headers = {
                 'Content-Range': f'bytes {range_start}-{range_end}/{file_size}',
                 'Accept-Ranges': 'bytes',
+                'Content-Length': str(content_length),
             }
-            return FileResponse(file_path, headers=headers, media_type='application/octet-stream')
+
+            with open(file_path, 'rb') as f:
+                f.seek(range_start)
+                data = f.read(content_length)
+
+            return Response(data, status_code=206, headers=headers, media_type='application/octet-stream')
         else:
             return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
 
