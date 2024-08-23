@@ -64,6 +64,7 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
                 'Accept-Ranges': 'bytes',
                 'Content-Length': str(content_length),
             }
+            del headers['Content-Length']
             return FileResponse(file_path, headers=headers, media_type='application/octet-stream')
         else:
             return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
