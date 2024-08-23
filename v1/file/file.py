@@ -1,6 +1,7 @@
 import base64
 import uuid
 import os
+from xml.etree.ElementPath import iterfind
 from aioredis import Redis
 from main import *
 from src.function import *
@@ -71,9 +72,10 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
                 f.seek(range_start)
                 data = f.read(content_length)
 
-            return Response(data, status_code=206, headers=headers, media_type='application/octet-stream')
+            return StreamingResponse(data, status_code=206, headers=headers, media_type='application/octet-stream')
         else:
             return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
+        iterfile()
 
 
 # noinspection PyShadowingNames,PyUnboundLocalVariable
