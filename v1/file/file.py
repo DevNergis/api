@@ -47,48 +47,27 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
 
         return FileResponse(f"{FILE_PATH}/{file_id}", filename=file_name)
     else:
-
-        file_path = f"{FILE_PATH}/{file_id}"
-        file_size = os.path.getsize(file_path)
-
-        range_header = request.headers.get('Range', None)
+        range_header = request.headers.get('Range')
         if range_header:
-            bytes_range = range_header.removeprefix("bytes=").split("-")
-            if bytes_range[0] == '':
-                start = 0
-            else:
-                start = int(bytes_range[0])
-            if len(bytes_range) < 2 or bytes_range[1] == '':
-                end = file_size
-            else:
-                end = int(bytes_range[1])
+            range_start, range_end = range_header.replace('bytes=', '').split('-')
+            range_start = int(range_start)
+            range_end = int(range_end) if range_end else None
+            file_path = f"{FILE_PATH}/{file_id}"
+            file_size = os.path.getsize(file_path)
+            if range_start >= file_size:
+                return HTTPException(status_code=416, detail="Requested range not satisfiable")
+            if range_end is None or range_end >= file_size:
+                range_end = file_size - 1
+            content_length = range_end - range_start + 1
+            headers = {
+                'Content-Range': f'bytes {range_start}-{range_end}/{file_size}',
+                'Accept-Ranges': 'bytes',
+                'Content-Length': str(content_length),
+            }
+            return FileResponse(file_path, headers=headers, media_type='application/octet-stream')
         else:
-            start, end = 0, file_size
-
-        if start >= file_size:
-            return HTTPException(status_code=416, detail="Range not satisfiable")
-
-        content_length = end - start
-        headers = {
-            "Content-Disposition": f"attachment;filename={file}",
-            "Content-Type": "application/octet-stream",
-            "Content-Range": f"bytes {start}-{end}/{file_size}",
-            "Content-Length": str(content_length),
-            "Accept-Ranges": "bytes",
-        }
-
-        async def content():
-            async with aiofiles.open(file_path, 'rb') as file_1:
-                await file_1.seek(start)
-                while True:
-                    data = await file_1.read(1024 * 1024)
-                    if not data:
-                        break
-                    yield data
-
-        return StreamingResponse(content(), headers=headers, media_type="application/octet-stream", charset='utf-8')
-
-        #return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
+            return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
+    return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
 
 
 # noinspection PyShadowingNames,PyUnboundLocalVariable
