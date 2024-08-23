@@ -112,16 +112,9 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
         await redis_file_db_name.set(file_uuid, file_name)
         await redis_file_db_name.close()
 
-        chunk = BytesIO()
-        chunk_range = range(ceil(file.size / (1024 * 1024 * 2)))
-
-        for _ in chunk_range:
-            chunk.write(await file.read(1024 * 1024 * 2))
-
-        chunk.seek(0)
-
         async with aiofiles.open(f"{FILE_PATH}/{file_uuid}", "wb") as file_save:
-            await file_save.write(chunk.read())
+            while chunk := await file.read(1024 * 1024 * 2):  # 2MB 청크 단위로 파일 읽기
+                await file_save.write(chunk)
 
         chunk.close()
         file.file.close()

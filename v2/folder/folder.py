@@ -102,7 +102,7 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
                 {"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
 
             async with aiofiles.open(f"{function.FOLDER_PATH}/{file_uuid}", "wb") as f:
-                for chunk in iter(lambda: file.file.read(1024), b""):
+                while chunk := await file.read(1024 * 1024 * 2):  # 2MB 청크 단위로 파일 읽기
                     await f.write(chunk)
             await f.close()
             await file.close()
