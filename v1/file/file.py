@@ -86,7 +86,7 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
                         break
                     yield data
 
-        return StreamingResponse(content(), headers=headers, media_type="application/octet-stream")
+        return StreamingResponse(content(), headers=headers, media_type="application/octet-stream", charset='utf-8')
 
         #return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
 
