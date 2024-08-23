@@ -44,7 +44,7 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
         await redis_file_db_name.close()
         file_name = bytes.fromhex(file_name).decode('utf-8')
         file_name = base64.b64decode(file_name).decode("utf-8")
-
+    
         return FileResponse(f"{FILE_PATH}/{file_id}", filename=file_name)
     else:
         range_header = request.headers.get('Range')
@@ -55,7 +55,7 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
             file_path = f"{FILE_PATH}/{file_id}"
             file_size = os.path.getsize(file_path)
             if range_start >= file_size:
-                return HTTPException(status_code=416, detail="Requested range not satisfiable")
+                raise HTTPException(status_code=416, detail="Requested range not satisfiable")
             if range_end is None or range_end >= file_size:
                 range_end = file_size - 1
             content_length = range_end - range_start + 1
@@ -67,7 +67,6 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
             return FileResponse(file_path, headers=headers, media_type='application/octet-stream')
         else:
             return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
-    return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
 
 
 # noinspection PyShadowingNames,PyUnboundLocalVariable
