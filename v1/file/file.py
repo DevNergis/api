@@ -68,9 +68,9 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
                 'Content-Length': str(content_length),
             }
 
-            with open(file_path, 'rb') as f:
-                f.seek(range_start)
-                data = f.read(content_length)
+            async with aiofiles.open(file_path, 'rb') as f:
+                await f.seek(range_start)
+                data = await f.read(content_length)
 
             return Response(data, status_code=206, headers=headers, media_type='application/octet-stream')
         else:
