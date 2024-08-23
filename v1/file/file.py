@@ -1,10 +1,7 @@
 import base64
 import uuid
 import os
-from math import ceil
-
 from aioredis import Redis
-
 from main import *
 from src.function import *
 import aiofiles
