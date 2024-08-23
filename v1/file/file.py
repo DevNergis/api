@@ -10,6 +10,7 @@ from src.function import *
 import aiofiles
 from fastapi.security.api_key import APIKeyHeader
 from fastapi import Security, Request, HTTPException
+from fastapi.responses import FileResponse
 
 router = APIRouter(prefix="/file", tags=["file"])
 
@@ -62,9 +63,7 @@ async def file_download(request: Request, file_id: str, file: Union[str, None] =
             headers = {
                 'Content-Range': f'bytes {range_start}-{range_end}/{file_size}',
                 'Accept-Ranges': 'bytes',
-                'Content-Length': str(content_length),
             }
-            del headers['Content-Length']
             return FileResponse(file_path, headers=headers, media_type='application/octet-stream')
         else:
             return FileResponse(f"{FILE_PATH}/{file_id}", filename=file)
