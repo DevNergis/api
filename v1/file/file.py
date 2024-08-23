@@ -116,8 +116,7 @@ async def file_upload(files: List[UploadFile] = File(), password: Union[str, Non
             while chunk := await file.read(1024 * 1024 * 2):  # 2MB 청크 단위로 파일 읽기
                 await file_save.write(chunk)
 
-        chunk.close()
-        file.file.close()
+        await file_save.close()
         await file.close()
 
     return ORJSONResponse(
