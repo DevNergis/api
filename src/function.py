@@ -103,9 +103,7 @@ class Cipher:
                 base64.a85decode(base64.b85decode(
                     zlib.decompress(bytes.fromhex(self.data))))))).decode()
 
-class HTTPRequest(httpx.AsyncClient):
-    async def __init__(self, **kwargs) -> Coroutine:
-        return await super(http2=True, **kwargs)
+HTTPRequest = httpx.AsyncClient(http2=True, headers=HEADERS)
 
 class aiorjson():
     async def dumps(self, obj: Any, default: Optional[Callable[[Any], Any]] = None, option: Optional[int] = None):
