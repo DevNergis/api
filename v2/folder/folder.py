@@ -104,29 +104,32 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
     folder_admin_key_hash = function.Obfuscation(json_value['folder_admin_password']).hexoff()
     folder_admin_key_salt = function.Obfuscation(salt_json_value['folder_admin_key_salt']).hexoff()
 
-    if function.Security(X_A_Passwd, folder_admin_key_salt, folder_admin_key_hash).is_correct_password():
-        for file in files:
-            __uuid__ = str(uuid.uuid4())
+    try:
+        if function.Security(X_A_Passwd, folder_admin_key_salt, folder_admin_key_hash).is_correct_password():
+            for file in files:
+                __uuid__ = str(uuid.uuid4())
 
-            file_uuid_list.append(__uuid__)
+                file_uuid_list.append(__uuid__)
 
-            file_uuid = function.Obfuscation(__uuid__).on()
-            file_name = function.Obfuscation(file.filename).on()
-            file_size = file.size
+                file_uuid = function.Obfuscation(__uuid__).on()
+                file_name = function.Obfuscation(file.filename).on()
+                file_size = file.size
 
-            json_value['folder_contents'].append(
-                {"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
+                json_value['folder_contents'].append(
+                    {"file_uuid": file_uuid, "file_name": file_name, "file_size": file_size})
 
-            async with aiofiles.open(f"{function.FOLDER_PATH}/{file_uuid}", "wb") as f:
-                while chunk := await file.read(1024 * 1024 * 2):  # 2MB 청크 단위로 파일 읽기
-                    await f.write(chunk)
-            await f.close()
-            await file.close()
+                async with aiofiles.open(f"{function.FOLDER_PATH}/{file_uuid}", "wb") as f:
+                    while chunk := await file.read(1024 * 1024 * 2):  # 2MB 청크 단위로 파일 읽기
+                        await f.write(chunk)
+                await f.close()
+                await file.close()
 
-        await DB.set(folder_id, await function.aiorjson.dumps(json_value))
+            await DB.set(folder_id, await function.aiorjson.dumps(json_value))
 
-        return {"file_uuid": file_uuid_list}
-    else:
+            return {"file_uuid": file_uuid_list}
+        else:
+            return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
+    except AttributeError:
         return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
 
 
