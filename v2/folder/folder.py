@@ -74,16 +74,16 @@ async def folder_open(folder_id: str, X_F_Passwd: Optional[str] = folder_passwor
 
     file_list: list = json_value['folder_contents']
 
-    folder_key_hash = function.Obfuscation(json_value['folder_password']).hexoff()
-    folder_key_salt = function.Obfuscation(salt_json_value['folder_password_salt']).hexoff()
-
     try:
-        if function.Security(X_F_Passwd, folder_key_salt, folder_key_hash).is_correct_password():
-            return {"folder_contents": file_list}
-        else:
-            return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
-    except AttributeError:
+        folder_key_hash = function.Obfuscation(json_value['folder_password']).hexoff()
+        folder_key_salt = function.Obfuscation(salt_json_value['folder_password_salt']).hexoff()
+    except TypeError:
         return {"folder_contents": file_list}
+    
+    if function.Security(X_F_Passwd, folder_key_salt, folder_key_hash).is_correct_password():
+        return {"folder_contents": file_list}
+    else:
+        return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
 
 
 # noinspection PyPep8Naming,DuplicatedCode
