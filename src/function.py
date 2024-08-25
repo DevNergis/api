@@ -153,8 +153,8 @@ class Cipher:
 
 
 class aiorjson():
-    async def dumps(self, obj: Any, default: Optional[Callable[[Any], Any]] = None, option: Optional[int] = None):
+    async def dumps(obj: Any, default: Optional[Callable[[Any], Any]] = None, option: Optional[int] = None):
         return orjson.dumps(obj, default, option)
 
-    async def loads(self, obj: Union[bytes, bytearray, memoryview, str]):
+    async def loads(obj: Union[bytes, bytearray, memoryview, str]):
         return orjson.loads(obj)
