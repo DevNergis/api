@@ -153,14 +153,18 @@ async def folder_download(folder_id: str, file_uuid: str, X_F_Passwd: Optional[s
     folder_key_hash = function.Obfuscation(json_value['folder_password']).hexoff()
     folder_key_salt = function.Obfuscation(salt_json_value['folder_password_salt']).hexoff()
 
-    if function.Security(X_F_Passwd, folder_key_salt, folder_key_hash).is_correct_password():
-        for file_list_data in file_list:
-            if function.Obfuscation(file_list_data['file_uuid']).off() == file_uuid:
-                file_name = function.Obfuscation(file_list_data['file_name']).off()
+    try:
+        if function.Security(X_F_Passwd, folder_key_salt, folder_key_hash).is_correct_password():
+            for file_list_data in file_list:
+                if function.Obfuscation(file_list_data['file_uuid']).off() == file_uuid:
+                    file_name = function.Obfuscation(file_list_data['file_name']).off()
 
-        if file_name == "":
-            return HTTPException(404, "파일이 존제하지 않습니다!")
+            if file_name == "":
+                return HTTPException(404, "파일이 존제하지 않습니다!")
 
-        return fastapi.responses.FileResponse(f"{function.FOLDER_PATH}/{file_list_data['file_uuid']}", filename=file_name)
-    else:
+            return fastapi.responses.FileResponse(f"{function.FOLDER_PATH}/{file_list_data['file_uuid']}", filename=file_name)
+        else:
+            return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
+    except AttributeError:
         return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
+    
