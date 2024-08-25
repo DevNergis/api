@@ -15,7 +15,7 @@ import redis.asyncio as aioredis
 FILE_PATH = dotenv.get_key(".env", "FILE_PATH")
 OPEN_NEIS_API_KEY = dotenv.get_key(".env", "OPEN_NEIS_API_KEY")
 YDL_OPTIONS = dotenv.get_key(".env", "YDL_OPTIONS")
-HEADERS = orjson.loads(dotenv.get_key(".env", "HEADERS"))
+HEADERS = orjson.dumps(dotenv.get_key(".env", "HEADERS"))
 SERVER_URL = dotenv.get_key(".env", "SERVER_URL")
 DATE = datetime.now(timezone('Asia/Seoul')).strftime('%Y%m%d')
 N_DATE = (datetime.now(timezone('Asia/Seoul')) + timedelta(days=1)).strftime('%Y%m%d')
