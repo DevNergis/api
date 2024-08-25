@@ -127,11 +127,6 @@ def pool(db_num: int = 0):
     return redis.ConnectionPool().from_url(f"{DB}/{db_num}")
 
 
-class Redis():
-    async def pool(db_num: int = 0):
-        return await aioredis.ConnectionPool().from_url(f"{DB}/{db_num}")
-
-
 class Cipher:
     def __init__(self, data: str):
         self.data = data
