@@ -11,7 +11,7 @@ async def meal_info(body: SchemaMealInfo):
     url = f"https://open.neis.go.kr/hub/schoolInfo?KEY={OPEN_NEIS_API_KEY}&Type=json&pIndex=1&pSize=10&SCHUL_NM={body.school_name}"
     async with HTTPRequest() as client:
         response = await client.get(url)
-        r = orjson.loads(response.text)
+        r = await aiorjson.loads(response.text)
         rr = r['schoolInfo'][-1]
         rrr = rr['row'][-1]
         atpt_ofcdc_sc_code = rrr['ATPT_OFCDC_SC_CODE']
@@ -24,7 +24,7 @@ async def meal_info(body: SchemaMealInfo):
         if response.text == """{"RESULT":{"CODE":"INFO-200","MESSAGE":"해당하는 데이터가 없습니다."}}""":
             return ORJSONResponse(content={"RESULT": {"CODE": "INFO-200", "MESSAGE": "해당하는 데이터가 없습니다."}}, status_code=200)
         else:
-            r = orjson.loads(response.text)
+            r = await aiorjson.loads(response.text)
             rr = r['mealServiceDietInfo'][-1]
             rrr = rr['row'][-1]
             ddish_nm = rrr['DDISH_NM']

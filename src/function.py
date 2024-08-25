@@ -1,5 +1,6 @@
 from datetime import *
 import dotenv
+import orjson
 import redis.asyncio as redis
 from pytz import timezone
 from typing import *
@@ -105,3 +106,11 @@ class Cipher:
 class HTTPRequest(httpx.AsyncClient):
     async def __init__(self, **kwargs):
         await super(http2=True, **kwargs)
+
+
+class aiorjson():
+    async def dumps(self, obj: Any, default: Optional[Callable[[Any], Any]] = None, option: Optional[int] = None):
+        orjson.dumps(obj, default, option)
+
+    async def loads(self, obj: Union[bytes, bytearray, memoryview, str]):
+        orjson.loads(obj)
