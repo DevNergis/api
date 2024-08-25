@@ -62,12 +62,28 @@ async def folder_make(body: schema.FolderMake):
 
 
 @router.get("/{folder_id}")
-async def folder_open(folder_id: str):
+async def folder_open(folder_id: str, X_F_Passwd: Optional[str] = folder_password):
     DB = aioredis.Redis(connection_pool=function.pool(function.FOLDER_DB))
-    json_value = await function.aiorjson.loads(await DB.get(folder_id))
-    await DB.close()
+    DB_SALT = aioredis.Redis(connection_pool=function.pool(function.SALT_DB))
 
-    return json_value
+    json_value = await function.aiorjson.loads(await DB.get(folder_id))
+    salt_json_value = await DB_SALT.json().get(json_value['folder_uuid'])
+
+    await DB.close()
+    await DB_SALT.close()
+
+    file_list: list = json_value['folder_contents']
+
+    folder_key_hash = function.Obfuscation(json_value['folder_password']).hexoff()
+    folder_key_salt = function.Obfuscation(salt_json_value['folder_password_salt']).hexoff()
+
+    try:
+        if function.Security(X_F_Passwd, folder_key_salt, folder_key_hash).is_correct_password():
+            return {"folder_contents": file_list}
+        else:
+            return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
+    except AttributeError:
+        return {"folder_contents": file_list}
 
 
 # noinspection PyPep8Naming,DuplicatedCode
