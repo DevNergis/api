@@ -2,7 +2,7 @@ import base64
 import uuid
 import os
 from xml.etree.ElementPath import iterfind
-from aioredis import Redis
+from redis.asyncio import Redis
 from main import *
 from src.function import *
 import aiofiles
