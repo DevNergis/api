@@ -41,10 +41,12 @@ async def status():
     return PlainTextResponse("Hi!")
 
 
-# noinspection PyShadowingNames
-@app.get('/ip')
-async def ip(ip: str = Header(None, alias='X-Forwarded-For')):
-    return PlainTextResponse(content=f"{ip}")
+@app.get("/ip")
+async def get_ip(request: Request):
+    client_host = request.headers.get("X-Real-IP")
+    if not client_host:
+        client_host = request.client.host
+    return PlainTextResponse(client_host)
 
 
 @app.get("/yt-dla")
