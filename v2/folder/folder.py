@@ -89,7 +89,7 @@ async def folder_open(folder_id: str, X_F_Passwd: Optional[str] = folder_passwor
 # noinspection PyPep8Naming,DuplicatedCode
 @router.post("/{folder_id}/upload")
 async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
-                        X_A_Passwd: Union[str, None] = folder_admin_password):
+                        X_A_Passwd: str = folder_admin_password):
     file_uuid_list: list = []
 
     DB = aioredis.Redis(connection_pool=function.pool(function.FOLDER_DB))
