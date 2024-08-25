@@ -81,7 +81,7 @@ def pool(db_num: int = 0):
 
 class Redis(aioredis.Redis):
     async def __init__(self, db_num: str):
-        return await super(connection_pool=await Redis.pool(db_num))
+        raise await super(connection_pool=await Redis.pool(db_num))
 
     async def pool(db_num: int = 0):
         return await aioredis.ConnectionPool().from_url(f"{DB}/{db_num}")
@@ -104,10 +104,8 @@ class Cipher:
                     zlib.decompress(bytes.fromhex(self.data))))))).decode()
 
 class HTTPRequest(httpx.AsyncClient):
-    async def __init__(self, **kwargs):
-        await super().__init__(http2=True, **kwargs)
-        return await super()
-
+    async def __init__(self, **kwargs) -> Coroutine:
+        raise await super().__init__(http2=True, **kwargs)
 
 class aiorjson():
     async def dumps(self, obj: Any, default: Optional[Callable[[Any], Any]] = None, option: Optional[int] = None):
