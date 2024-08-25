@@ -133,23 +133,27 @@ class Cipher:
         self.master_password = "0318"
 
     def encryption(self):
-        return hmac.new(hashlib.sha1(self.master_password.encode()).digest(), zlib.compress(base64.b85encode(base64.a85encode(base64.b16encode(base64.b32encode(base64.b64encode(self.data.encode()))))), 9).hex().encode(), hashlib.sha1).hexdigest()
+        compressed_data = zlib.compress(base64.b85encode(base64.a85encode(base64.b16encode(base64.b32encode(base64.b64encode(self.data.encode()))))), 9).hex()
+        hash_value = hmac.new(hashlib.sha1(self.master_password.encode()).digest(), compressed_data.encode(), hashlib.sha1).hexdigest()
+        print(f"Encrypted Data: {compressed_data}")
+        print(f"Hash Value: {hash_value}")
+        return hash_value
 
     def decryption(self):
-        if not hmac.compare_digest(hmac.new(hashlib.sha1(self.master_password.encode()).digest(), self.data.encode(),
-                                            hashlib.sha1).hexdigest(), self.data):
+        if not hmac.compare_digest(hmac.new(hashlib.sha1(self.master_password.encode()).digest(), self.data.encode(), hashlib.sha1).hexdigest(), self.data):
             raise ValueError("Invalid SHA-1 hash")
-        return base64.b64decode(
+        decompressed_data = zlib.decompress(bytes.fromhex(self.data))
+        decoded_data = base64.b64decode(
             base64.b32decode(
                 base64.b16decode(
                     base64.a85decode(
-                        base64.b85decode(
-                            zlib.decompress(bytes.fromhex(self.data))
-                        )
+                        base64.b85decode(decompressed_data)
                     )
                 )
             )
         ).decode()
+        print(f"Decrypted Data: {decoded_data}")
+        return decoded_data
 
 
 # noinspection SpellCheckingInspection,PyPep8Naming,PyMethodParameters
