@@ -90,16 +90,19 @@ async def folder_open(folder_id: str, X_F_Passwd: Optional[str] = folder_passwor
 
         return {"folder_contents": decoded_file_list}
     
-    if function.Security(X_F_Passwd, folder_key_salt, folder_key_hash).is_correct_password():
-        for file_data in file_list:
-            decoded_file_list.append({
-                "file_uuid": function.Obfuscation(file_data['file_uuid']).off(),
-                "file_name": function.Obfuscation(file_data['file_name']).off(),
-                "file_size": file_data['file_size']
-            })
-
-        return {"folder_contents": decoded_file_list}
-    else:
+    try:
+        if function.Security(X_F_Passwd, folder_key_salt, folder_key_hash).is_correct_password():
+            for file_data in file_list:
+                decoded_file_list.append({
+                    "file_uuid": function.Obfuscation(file_data['file_uuid']).off(),
+                    "file_name": function.Obfuscation(file_data['file_name']).off(),
+                    "file_size": file_data['file_size']
+                })
+    
+            return {"folder_contents": decoded_file_list}
+        else:
+            return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
+    except AttributeError:
         return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
 
 
