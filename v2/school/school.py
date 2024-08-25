@@ -2,6 +2,7 @@ from fastapi import *
 from fastapi.responses import *
 from src.function import *
 from src.schema import *
+import httpx
 
 router = APIRouter(prefix="/school", tags=["school"])
 
