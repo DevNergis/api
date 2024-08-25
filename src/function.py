@@ -8,7 +8,6 @@ import hashlib
 import secrets
 import hmac
 import base64
-import base64
 import zlib
 import redis.asyncio as aioredis
 import random
@@ -109,6 +108,7 @@ class Security:
                                                        self.dklen))
 
 
+# noinspection SpellCheckingInspection
 class Obfuscation:
     def __init__(self, data: str):
         self.data = data
@@ -130,21 +130,22 @@ def pool(db_num: int = 0):
 class Cipher:
     def __init__(self, data: str):
         self.data = data
+        self.master_password = "0318"
 
     def encryption(self):
-        return zlib.compress(base64.b85encode(
-            base64.a85encode(base64.b16encode(
-                base64.b32encode(base64.b64encode(
-                    self.data.encode()))))), 9).hex()
+        return hmac.new(hashlib.sha1(self.master_password.encode()).digest(), zlib.compress(base64.b85encode(base64.a85encode(base64.b16encode(base64.b32encode(base64.b64encode(self.data.encode()))))), 9).hex().encode(), hashlib.sha1).hexdigest()
 
     def decryption(self):
+        if not hmac.compare_digest(hmac.new(hashlib.sha1(self.master_password.encode()).digest(), self.data.encode(), hashlib.sha1).hexdigest(), self.data):
+            raise ValueError("Invalid SHA-1 hash")
         return base64.b64decode(
             base64.b32decode(base64.b16decode(
                 base64.a85decode(base64.b85decode(
                     zlib.decompress(bytes.fromhex(self.data))))))).decode()
 
 
-class aiorjson():
+# noinspection SpellCheckingInspection,PyPep8Naming,PyMethodParameters
+class aiorjson:
     async def dumps(obj: Any, default: Optional[Callable[[Any], Any]] = None, option: Optional[int] = None):
         return orjson.dumps(obj, default, option)
 
