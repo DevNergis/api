@@ -9,7 +9,6 @@ import secrets
 import hmac
 import base64
 import zlib
-import redis.asyncio as aioredis
 import random
 
 
@@ -108,7 +107,6 @@ class Security:
                                                        self.dklen))
 
 
-# noinspection SpellCheckingInspection
 class Obfuscation:
     def __init__(self, data: str):
         self.data = data
@@ -130,30 +128,19 @@ def pool(db_num: int = 0):
 class Cipher:
     def __init__(self, data: str):
         self.data = data
-        self.master_password = "0318"
 
     def encryption(self):
-        compressed_data = zlib.compress(base64.b85encode(base64.a85encode(base64.b16encode(base64.b32encode(base64.b64encode(self.data.encode()))))), 9).hex()
-        hash_value = hmac.new(hashlib.sha1(self.master_password.encode()).digest(), compressed_data.encode(), hashlib.sha1).hexdigest()
-        print(f"Encrypted Data: {compressed_data}")
-        print(f"Hash Value: {hash_value}")
-        return hash_value
+        return zlib.compress(base64.b85encode(
+            base64.a85encode(base64.b16encode(
+                base64.b32encode(base64.b64encode(
+                    self.data.encode()))))), 9).hex()
 
     def decryption(self):
-        if not hmac.compare_digest(hmac.new(hashlib.sha1(self.master_password.encode()).digest(), self.data.encode(), hashlib.sha1).hexdigest(), self.data):
-            raise ValueError("Invalid SHA-1 hash")
-        decompressed_data = zlib.decompress(bytes.fromhex(self.data))
-        decoded_data = base64.b64decode(
-            base64.b32decode(
-                base64.b16decode(
-                    base64.a85decode(
-                        base64.b85decode(decompressed_data)
-                    )
-                )
-            )
-        ).decode()
-        print(f"Decrypted Data: {decoded_data}")
-        return decoded_data
+        return base64.b64decode(
+            base64.b32decode(base64.b16decode(
+                base64.a85decode(base64.b85decode(
+                    zlib.decompress(bytes.fromhex(
+                        self.data))))))).decode()
 
 
 # noinspection SpellCheckingInspection,PyPep8Naming,PyMethodParameters
