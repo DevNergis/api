@@ -105,7 +105,7 @@ class Cipher:
 
 class HTTPRequest(httpx.AsyncClient):
     async def __init__(self, **kwargs):
-        await super(http2=True, **kwargs)
+        await super.__init__(http2=True, **kwargs)
 
 
 class aiorjson():
