@@ -7,6 +7,7 @@ from fastapi import *
 from redis.commands.json.path import Path
 from src import function
 from src import schema
+import redis.asyncio as aioredis
 
 
 router = APIRouter(prefix="/folder", tags=["folder"], default_response_class=responses.ORJSONResponse)
@@ -17,14 +18,14 @@ folder_admin_password = fastapi.Header(default=None)
 
 @router.post("/make")
 async def folder_make(body: schema.FolderMake):
-    DB = await function.Redis(function.FOLDER_DB)
+    DB = await aioredis.Redis(connection_pool=await function.Redis.pool(function.FOLDER_DB))
 
     folder_uuid = function.Obfuscation(str(uuid.uuid4())).on()
     key = hashlib.md5(body.folder_name.encode() + folder_uuid.encode()).hexdigest()
     folder_name = function.Obfuscation(body.folder_name).on()
 
     if body.folder_password is None:
-        DB_SALT = await function.Redis(function.SALT_DB)
+        DB_SALT = aioredis.Redis(connection_pool=await function.Redis.pool(function.SALT_DB))
 
         folder_password_hash = None
 
@@ -36,7 +37,7 @@ async def folder_make(body: schema.FolderMake):
                                   "folder_admin_key_salt": folder_admin_key_salt})
         await DB_SALT.close()
     else:
-        DB_SALT = await function.Redis(function.SALT_DB)
+        DB_SALT = aioredis.Redis(connection_pool=await function.Redis.pool(function.SALT_DB))
 
         folder_password_salt, folder_password_hash = function.Security(body.folder_password,
                                                                        to_hex=True).hash_new_password()
@@ -62,7 +63,7 @@ async def folder_make(body: schema.FolderMake):
 
 @router.get("/{folder_id}")
 async def folder_open(folder_id: str):
-    DB = await function.Redis(function.FOLDER_DB)
+    DB = aioredis.Redis(connection_pool=await function.Redis.pool(function.FOLDER_DB))
     json_value = await function.aiorjson.loads(await DB.get(folder_id))
     await DB.close()
 
@@ -75,8 +76,8 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
                         X_A_Passwd: Union[str, None] = folder_admin_password):
     file_uuid_list: list = []
 
-    DB = await function.Redis(function.FOLDER_DB)
-    DB_SALT = await function.Redis(function.SALT_DB)
+    DB = aioredis.Redis(connection_pool=await function.Redis.pool(function.FOLDER_DB))
+    DB_SALT = aioredis.Redis(connection_pool=await function.Redis.pool(function.SALT_DB))
 
     json_value = await function.aiorjson.loads(await DB.get(folder_id))
     salt_json_value = await DB_SALT.json().get(json_value['folder_uuid'])
@@ -119,8 +120,8 @@ async def folder_download(folder_id: str, file_uuid: str, X_F_Passwd: Optional[s
     file_name: str = ""
     file_list_data: dict = {}
 
-    DB = await function.Redis(function.FOLDER_DB)
-    DB_SALT = await function.Redis(function.SALT_DB)
+    DB = aioredis.Redis(connection_pool=await function.Redis.pool(function.FOLDER_DB))
+    DB_SALT = aioredis.Redis(connection_pool=await function.Redis.pool(function.SALT_DB))
 
     json_value = await function.aiorjson.loads(await DB.get(folder_id))
     salt_json_value = await DB_SALT.json().get(json_value['folder_uuid'])

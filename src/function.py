@@ -127,10 +127,7 @@ def pool(db_num: int = 0):
     return redis.ConnectionPool().from_url(f"{DB}/{db_num}")
 
 
-class Redis(aioredis.Redis):
-    async def __init__(self, db_num: str):
-        return await super(connection_pool=await Redis.pool(db_num))
-
+class Redis():
     async def pool(db_num: int = 0):
         return await aioredis.ConnectionPool().from_url(f"{DB}/{db_num}")
 
