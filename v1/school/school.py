@@ -1,4 +1,5 @@
-from main import *
+from fastapi import *
+from fastapi.responses import *
 from src.function import *
 from src.schema import *
 import requests

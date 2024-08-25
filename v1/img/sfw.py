@@ -1,6 +1,7 @@
 import random
 
-from main import *
+from fastapi import *
+from fastapi.responses import *
 
 router = APIRouter(prefix="/img", tags=["img"])
 

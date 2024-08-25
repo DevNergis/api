@@ -2,7 +2,8 @@ import base64
 import uuid
 from typing import List
 
-from main import *
+from fastapi import *
+from fastapi.responses import *
 from src.function import *
 
 

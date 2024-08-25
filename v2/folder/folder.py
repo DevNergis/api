@@ -5,8 +5,8 @@ import fastapi.responses
 from typing import *
 from fastapi import *
 from redis.commands.json.path import Path
-import function
-import schema
+from src import function
+from src import schema
 
 
 router = APIRouter(prefix="/folder", tags=["folder"], default_response_class=responses.ORJSONResponse)
