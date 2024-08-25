@@ -1,4 +1,5 @@
 import hashlib
+from uu import decode
 import uuid
 import aiofiles
 import fastapi.responses
@@ -63,6 +64,8 @@ async def folder_make(body: schema.FolderMake):
 
 @router.get("/{folder_id}")
 async def folder_open(folder_id: str, X_F_Passwd: Optional[str] = folder_password):
+    decoded_file_list: list = []
+
     DB = aioredis.Redis(connection_pool=function.pool(function.FOLDER_DB))
     DB_SALT = aioredis.Redis(connection_pool=function.pool(function.SALT_DB))
 
@@ -78,10 +81,24 @@ async def folder_open(folder_id: str, X_F_Passwd: Optional[str] = folder_passwor
         folder_key_hash = function.Obfuscation(json_value['folder_password']).hexoff()
         folder_key_salt = function.Obfuscation(salt_json_value['folder_password_salt']).hexoff()
     except TypeError:
-        return {"folder_contents": file_list}
+        for file_data in file_list:
+            decoded_file_list.append({
+                "file_uuid": function.Obfuscation(file_data['file_uuid']).off(),
+                "file_name": function.Obfuscation(file_data['file_name']).off(),
+                "file_size": file_data['file_size']
+            })
+
+        return {"folder_contents": decoded_file_list}
     
     if function.Security(X_F_Passwd, folder_key_salt, folder_key_hash).is_correct_password():
-        return {"folder_contents": file_list}
+        for file_data in file_list:
+            decoded_file_list.append({
+                "file_uuid": function.Obfuscation(file_data['file_uuid']).off(),
+                "file_name": function.Obfuscation(file_data['file_name']).off(),
+                "file_size": file_data['file_size']
+            })
+
+        return {"folder_contents": decoded_file_list}
     else:
         return HTTPException(status.HTTP_401_UNAUTHORIZED, detail="비번 틀림")
 
