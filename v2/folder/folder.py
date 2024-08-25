@@ -8,6 +8,7 @@ from redis.commands.json.path import Path
 import function
 import schema
 
+
 router = APIRouter(prefix="/folder", tags=["folder"], default_response_class=responses.ORJSONResponse)
 
 folder_password = fastapi.Header(default=None)
@@ -137,7 +138,7 @@ async def folder_download(folder_id: str, file_uuid: str, X_F_Passwd: Optional[s
             if function.Obfuscation(file_list_data['file_uuid']).off() == file_uuid:
                 file_name = function.Obfuscation(file_list_data['file_name']).off()
 
-        if file_name is "":
+        if file_name == "":
             return HTTPException(404, "파일이 존제하지 않습니다!")
 
         return fastapi.responses.FileResponse(f"{function.FOLDER_PATH}/{file_list_data['file_uuid']}", filename=file_name)
