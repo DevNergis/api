@@ -1,7 +1,6 @@
 from main import *
-from src.function import *
-from src.schema import *
-import httpx
+from function import *
+from schema import *
 
 router = APIRouter(prefix="/school", tags=["school"])
 
@@ -10,7 +9,7 @@ router = APIRouter(prefix="/school", tags=["school"])
 @router.post("/meal", description="날자 형식: yyyy-mm-dd, ex) 2024-06-17")
 async def meal_info(body: SchemaMealInfo):
     url = f"https://open.neis.go.kr/hub/schoolInfo?KEY={OPEN_NEIS_API_KEY}&Type=json&pIndex=1&pSize=10&SCHUL_NM={body.school_name}"
-    async with httpx.AsyncClient() as client:
+    async with HTTPRequest() as client:
         response = await client.get(url)
         r = orjson.loads(response.text)
         rr = r['schoolInfo'][-1]

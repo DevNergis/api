@@ -1,15 +1,16 @@
 from datetime import *
-from io import BytesIO
 import dotenv
 import redis.asyncio as redis
-import requests
-from yt_dlp import YoutubeDL
 from pytz import timezone
 from typing import *
 import hashlib
 import secrets
 import hmac
 import base64
+import base64
+import zlib
+import httpx
+import redis.asyncio as aioredis
 
 FILE_PATH = dotenv.get_key(".env", "FILE_PATH")
 OPEN_NEIS_API_KEY = dotenv.get_key(".env", "OPEN_NEIS_API_KEY")
@@ -77,25 +78,30 @@ def pool(db_num: int = 0):
     return redis.ConnectionPool().from_url(f"{DB}/{db_num}")
 
 
-def ydl_url(url: str):
-    with YoutubeDL(YDL_OPTIONS) as ydl:
-        info = ydl.extract_info(url, download=False)
+class Redis(aioredis.Redis):
+    async def __init__(self, db_num: str):
+        await super(connection_pool=await Redis.pool(db_num))
 
-    url = info['formats'][0]['url']
-    return url
+    async def pool(db_num: int = 0):
+        return await aioredis.ConnectionPool().from_url(f"{DB}/{db_num}")
 
 
-# noinspection PyTypeChecker
-def ydl_cache(url: str, name: str):
-    with requests.get(url, stream=True, headers=HEADERS) as file_request:
-        content = BytesIO()
+class Cipher:
+    def __init__(self, data: str):
+        self.data = data
 
-        for chunk in file_request.iter_content(chunk_size=1 * 1024 * 1024):
-            content.write(chunk)
+    def encryption(self):
+        return zlib.compress(base64.b85encode(
+            base64.a85encode(base64.b16encode(
+                base64.b32encode(base64.b64encode(
+                    self.data.encode()))))), 9).hex()
 
-        with open(f"{name}", "wb") as file_save:
-            file_save.write(content.getbuffer())
+    def decryption(self):
+        return base64.b64decode(
+            base64.b32decode(base64.b16decode(
+                base64.a85decode(base64.b85decode(
+                    zlib.decompress(bytes.fromhex(self.data))))))).decode()
 
-        content.seek(0)
-
-    return url, name
+class HTTPRequest(httpx.AsyncClient):
+    async def __init__(self, **kwargs):
+        await super(http2=True, **kwargs)

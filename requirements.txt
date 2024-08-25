@@ -7,7 +7,6 @@ pydantic
 python-dotenv
 starlette
 pytz
-aioredis
-ujson
+orjson
 hypercorn
 yt-dlp

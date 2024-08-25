@@ -2,15 +2,14 @@ import hashlib
 import uuid
 import aiofiles
 import fastapi.responses
-import ujson
+import orjson
 from typing import *
 from fastapi import *
-import redis.asyncio as redis
 from redis.commands.json.path import Path
+import function
+import schema
 
-from src import function, schema
-
-router = APIRouter(prefix="/folder", tags=["folder"], default_response_class=responses.UJSONResponse)
+router = APIRouter(prefix="/folder", tags=["folder"], default_response_class=responses.ORJSONResponse)
 
 folder_password = fastapi.Header(default=None)
 folder_admin_password = fastapi.Header(default=None)
@@ -18,14 +17,14 @@ folder_admin_password = fastapi.Header(default=None)
 
 @router.post("/make")
 async def folder_make(body: schema.FolderMake):
-    DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
+    DB = await function.Redis(function.FOLDER_DB)
 
     folder_uuid = function.Obfuscation(str(uuid.uuid4())).on()
     key = hashlib.md5(body.folder_name.encode() + folder_uuid.encode()).hexdigest()
     folder_name = function.Obfuscation(body.folder_name).on()
 
     if body.folder_password is None:
-        DB_SALT = await redis.Redis(connection_pool=function.pool(function.SALT_DB))
+        DB_SALT = await function.Redis(function.SALT_DB)
 
         folder_password_hash = None
 
@@ -37,7 +36,7 @@ async def folder_make(body: schema.FolderMake):
                                   "folder_admin_key_salt": folder_admin_key_salt})
         await DB_SALT.close()
     else:
-        DB_SALT = await redis.Redis(connection_pool=function.pool(function.SALT_DB))
+        DB_SALT = await function.Redis(function.SALT_DB)
 
         folder_password_salt, folder_password_hash = function.Security(body.folder_password,
                                                                        to_hex=True).hash_new_password()
@@ -49,7 +48,7 @@ async def folder_make(body: schema.FolderMake):
                                   "folder_admin_key_salt": folder_admin_key_salt})
         await DB_SALT.close()
 
-    await DB.set(key, ujson.dumps({
+    await DB.set(key, orjson.dumps({
         "folder_uuid": folder_uuid,
         "folder_name": folder_name,
         "folder_password": folder_password_hash,
@@ -63,8 +62,8 @@ async def folder_make(body: schema.FolderMake):
 
 @router.get("/{folder_id}")
 async def folder_open(folder_id: str):
-    DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
-    json_value = ujson.loads(await DB.get(folder_id))
+    DB = await function.Redis(function.FOLDER_DB)
+    json_value = orjson.loads(await DB.get(folder_id))
     await DB.close()
 
     return json_value
@@ -76,10 +75,10 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
                         X_A_Passwd: Union[str, None] = folder_admin_password):
     file_uuid_list: list = []
 
-    DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
-    DB_SALT = await redis.Redis(connection_pool=function.pool(function.SALT_DB))
+    DB = await function.Redis(function.FOLDER_DB)
+    DB_SALT = await function.Redis(function.SALT_DB)
 
-    json_value = ujson.loads(await DB.get(folder_id))
+    json_value = orjson.loads(await DB.get(folder_id))
     salt_json_value = await DB_SALT.json().get(json_value['folder_uuid'])
 
     await DB.close()
@@ -107,7 +106,7 @@ async def folder_upload(folder_id: str, files: List[UploadFile] = File(),
             await f.close()
             await file.close()
 
-        await DB.set(folder_id, ujson.dumps(json_value))
+        await DB.set(folder_id, orjson.dumps(json_value))
 
         return {"file_uuid": file_uuid_list}
     else:
@@ -120,10 +119,10 @@ async def folder_download(folder_id: str, file_uuid: str, X_F_Passwd: Optional[s
     file_name: str = ""
     file_list_data: dict = {}
 
-    DB = await redis.Redis(connection_pool=function.pool(function.FOLDER_DB))
-    DB_SALT = await redis.Redis(connection_pool=function.pool(function.SALT_DB))
+    DB = await function.Redis(function.FOLDER_DB)
+    DB_SALT = await function.Redis(function.SALT_DB)
 
-    json_value = ujson.loads(await DB.get(folder_id))
+    json_value = orjson.loads(await DB.get(folder_id))
     salt_json_value = await DB_SALT.json().get(json_value['folder_uuid'])
 
     await DB.close()

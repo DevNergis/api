@@ -1,10 +1,9 @@
 from fastapi import *
 from fastapi.responses import *
 from starlette.middleware.cors import CORSMiddleware
-
 import v1
 import v2
-from src.function import ydl_url
+
 
 app = FastAPI(
     title="Nergis API",
@@ -47,10 +46,3 @@ async def get_ip(request: Request):
     if not client_host:
         client_host = request.client.host
     return PlainTextResponse(client_host)
-
-
-@app.get("/yt-dla")
-async def youtube_dl(url: str):
-    url = ydl_url(url)
-
-    return HTMLResponse(content=f"""{url}""", status_code=200)
