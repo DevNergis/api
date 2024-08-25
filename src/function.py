@@ -136,12 +136,20 @@ class Cipher:
         return hmac.new(hashlib.sha1(self.master_password.encode()).digest(), zlib.compress(base64.b85encode(base64.a85encode(base64.b16encode(base64.b32encode(base64.b64encode(self.data.encode()))))), 9).hex().encode(), hashlib.sha1).hexdigest()
 
     def decryption(self):
-        if not hmac.compare_digest(hmac.new(hashlib.sha1(self.master_password.encode()).digest(), self.data.encode(), hashlib.sha1).hexdigest(), self.data):
+        if not hmac.compare_digest(hmac.new(hashlib.sha1(self.master_password.encode()).digest(), self.data.encode(),
+                                            hashlib.sha1).hexdigest(), self.data):
             raise ValueError("Invalid SHA-1 hash")
         return base64.b64decode(
-            base64.b32decode(base64.b16decode(
-                base64.a85decode(base64.b85decode(
-                    zlib.decompress(bytes.fromhex(self.data))))))).decode()
+            base64.b32decode(
+                base64.b16decode(
+                    base64.a85decode(
+                        base64.b85decode(
+                            zlib.decompress(bytes.fromhex(self.data))
+                        )
+                    )
+                )
+            )
+        ).decode()
 
 
 # noinspection SpellCheckingInspection,PyPep8Naming,PyMethodParameters
