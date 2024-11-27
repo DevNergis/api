@@ -1,9 +1,8 @@
-﻿FROM python:alpine3.19
+FROM python
 
 COPY . .
 
 RUN pip install -r requirements.txt
 
-CMD ./start.sh
-
-EXPOSE 2002
+EXPOSE 8000
+CMD fastapi run
