@@ -54,7 +54,7 @@ def generate_user_agent():
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36",
     ]
     return random.choice(user_agents)
 
@@ -64,8 +64,8 @@ OPEN_NEIS_API_KEY = dotenv.get_key(".env", "OPEN_NEIS_API_KEY")
 YDL_OPTIONS = dotenv.get_key(".env", "YDL_OPTIONS")
 HEADERS = headers = {"User-Agent": generate_user_agent()}
 SERVER_URL = dotenv.get_key(".env", "SERVER_URL")
-DATE = datetime.now(timezone('Asia/Seoul')).strftime('%Y%m%d')
-N_DATE = (datetime.now(timezone('Asia/Seoul')) + timedelta(days=1)).strftime('%Y%m%d')
+DATE = datetime.now(timezone("Asia/Seoul")).strftime("%Y%m%d")
+N_DATE = (datetime.now(timezone("Asia/Seoul")) + timedelta(days=1)).strftime("%Y%m%d")
 DATE_QLOAT = datetime.now()
 QLOAT_PASSWORD = dotenv.get_key(".env", "QLOAT_PASSWORD")
 FILE_PATH_QLOAT = dotenv.get_key(".env", "FILE_PATH_QLOAT")
@@ -83,8 +83,16 @@ Authorization = dotenv.get_key(".env", "Authorization")
 
 
 class Security:
-    def __init__(self, password: str, salt: bytes = None, password_hash: bytes = None, algorithm: str = 'sha3_256',
-                 iterations: int = 100000, dklen: Optional[int] = None, to_hex: bool = False) -> None:
+    def __init__(
+        self,
+        password: str,
+        salt: bytes = None,
+        password_hash: bytes = None,
+        algorithm: str = "sha3_256",
+        iterations: int = 100000,
+        dklen: Optional[int] = None,
+        to_hex: bool = False,
+    ) -> None:
         self.password = password.encode("utf-8")
         self.salt = salt
         self.password_hash = password_hash
@@ -95,16 +103,21 @@ class Security:
 
     def hash_new_password(self) -> Tuple[bytes, bytes] | Tuple[str, str]:
         salt = secrets.token_bytes(16)
-        password_hash = hashlib.pbkdf2_hmac(self.algorithm, self.password, salt, self.iterations, self.dklen)
+        password_hash = hashlib.pbkdf2_hmac(
+            self.algorithm, self.password, salt, self.iterations, self.dklen
+        )
         if self.to_hex:
             return salt.hex(), password_hash.hex()
         else:
             return salt, password_hash
 
     def is_correct_password(self) -> bool:
-        return hmac.compare_digest(self.password_hash,
-                                   hashlib.pbkdf2_hmac(self.algorithm, self.password, self.salt, self.iterations,
-                                                       self.dklen))
+        return hmac.compare_digest(
+            self.password_hash,
+            hashlib.pbkdf2_hmac(
+                self.algorithm, self.password, self.salt, self.iterations, self.dklen
+            ),
+        )
 
 
 class Obfuscation:
@@ -130,22 +143,36 @@ class Cipher:
         self.data = data
 
     def encryption(self):
-        return zlib.compress(base64.b85encode(
-            base64.a85encode(base64.b16encode(
-                base64.b32encode(base64.b64encode(
-                    self.data.encode()))))), 9).hex()
+        return zlib.compress(
+            base64.b85encode(
+                base64.a85encode(
+                    base64.b16encode(
+                        base64.b32encode(base64.b64encode(self.data.encode()))
+                    )
+                )
+            ),
+            9,
+        ).hex()
 
     def decryption(self):
         return base64.b64decode(
-            base64.b32decode(base64.b16decode(
-                base64.a85decode(base64.b85decode(
-                    zlib.decompress(bytes.fromhex(
-                        self.data))))))).decode()
+            base64.b32decode(
+                base64.b16decode(
+                    base64.a85decode(
+                        base64.b85decode(zlib.decompress(bytes.fromhex(self.data)))
+                    )
+                )
+            )
+        ).decode()
 
 
 # noinspection SpellCheckingInspection,PyPep8Naming,PyMethodParameters
 class aiorjson:
-    async def dumps(obj: Any, default: Optional[Callable[[Any], Any]] = None, option: Optional[int] = None):
+    async def dumps(
+        obj: Any,
+        default: Optional[Callable[[Any], Any]] = None,
+        option: Optional[int] = None,
+    ):
         return orjson.dumps(obj, default, option)
 
     async def loads(obj: Union[bytes, bytearray, memoryview, str]):

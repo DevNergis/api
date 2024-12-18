@@ -11,16 +11,17 @@ router = APIRouter(prefix="/ipfs", tags=["ipfs"])
 
 
 # noinspection PyShadowingNames
-@router.post("/upload", summary="file upload to ipfs", description="The file size limit is 100MB.")
+@router.post(
+    "/upload",
+    summary="file upload to ipfs",
+    description="The file size limit is 100MB.",
+)
 async def ipfs_upload(files: List[UploadFile] = File()):
     file_size_list = list()
     file_name_list = list()
     file_direct_list = list()
 
-    header = {
-        'x-agent-did': x_agent_did,
-        'Authorization': Authorization
-    }
+    header = {"x-agent-did": x_agent_did, "Authorization": Authorization}
 
     file_list = aiohttp.FormData()
 
@@ -39,8 +40,12 @@ async def ipfs_upload(files: List[UploadFile] = File()):
 
         chunk.seek(0)
 
-        file_list.add_field(name="file", value=chunk.read(), content_type="application/octet-stream",
-                            filename=file.filename)
+        file_list.add_field(
+            name="file",
+            value=chunk.read(),
+            content_type="application/octet-stream",
+            filename=file.filename,
+        )
 
         chunk.close()
         file.file.close()
@@ -48,20 +53,35 @@ async def ipfs_upload(files: List[UploadFile] = File()):
 
     my_timeout = aiohttp.ClientTimeout(total=None, sock_connect=10, sock_read=10)
 
-    async with aiohttp.ClientSession(headers=header, timeout=my_timeout, trust_env=True) as session:
-        async with session.post("https://api.nft.storage/upload", data=file_list) as response:
+    async with aiohttp.ClientSession(
+        headers=header, timeout=my_timeout, trust_env=True
+    ) as session:
+        async with session.post(
+            "https://api.nft.storage/upload", data=file_list
+        ) as response:
             if 200 == response.status:
                 data = await response.json()
                 cid = data["value"]["cid"]
                 directory_url = f"https://{cid}.ipfs.cf-ipfs.com"
                 for file_name in file_name_list:
-                    file_direct_list.append(f"https://{cid}.ipfs.cf-ipfs.com/{file_name}")
+                    file_direct_list.append(
+                        f"https://{cid}.ipfs.cf-ipfs.com/{file_name}"
+                    )
             else:
                 return ORJSONResponse(content={"info": "error!"})
 
     if response.status == 200:
-        return ORJSONResponse(content={"file_size": file_size_list, "directory_cid": cid, "file_name": file_name_list,
-                                       "directory_url": directory_url, "file_direct": file_direct_list},
-                              status_code=200)
+        return ORJSONResponse(
+            content={
+                "file_size": file_size_list,
+                "directory_cid": cid,
+                "file_name": file_name_list,
+                "directory_url": directory_url,
+                "file_direct": file_direct_list,
+            },
+            status_code=200,
+        )
     else:
-        return PlainTextResponse(content=await response.read(), status_code=response.status)
+        return PlainTextResponse(
+            content=await response.read(), status_code=response.status
+        )

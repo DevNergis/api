@@ -8,7 +8,11 @@ router = APIRouter(prefix="/corche", tags=["corche"])
 
 @router.get("/today_H_corche")
 async def today_h_corche():
-    return ORJSONResponse(content={"info": f"오늘은 코체가 한강물을 {random.randint(1, 100)}% 만큼 먹었어요!"})
+    return ORJSONResponse(
+        content={
+            "info": f"오늘은 코체가 한강물을 {random.randint(1, 100)}% 만큼 먹었어요!"
+        }
+    )
 
 
 @router.get("/today_corche")

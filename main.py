@@ -10,7 +10,8 @@ app = FastAPI(
     summary="Made By Dev_Nergis",
     description="Nergis API",
     version="7.3.6",
-    default_response_class=ORJSONResponse)
+    default_response_class=ORJSONResponse,
+)
 
 # noinspection PyTypeChecker
 app.add_middleware(
