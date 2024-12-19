@@ -1,0 +1,20 @@
+[Env]
+SERVER_URL = "https://api.nergis.dev"
+
+[File]
+FILE_PATH = "/workspaces/api/tf"
+FILE_PATH_QLOAT = "asdfasdf"
+FOLDER_PATH = "/workspaces/api/tf"
+
+[Key]
+OPEN_NEIS_API_KEY = "4e1af35dc1954eb8aaf573eff8653c43"
+x-agent-did = "did:key:z6MknjRbVGkfWK1x5gyJZb6D4LjMj1EsitFzcSccS3sAaviQ"
+Authorization = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDUzNjc0RUE2NTE1OERjNUU3MkYzQzNDMTY0NDRiN0QxNjdjMUVlYkMiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMzE2MzE1MTcwMCwibmFtZSI6Im1haW4ifQ.w_cuvNWxDpBKisNIrmbrqAhIczbXCRCciOPLsNPNLe8"
+QLOAT_PASSWORD = "test"
+
+[DB]
+URL = "redis://default@localhost:6379"
+FILE_DB = 0
+PASSWD_DB = 1
+FOLDER_DB = 2
+SALT_DB = 3

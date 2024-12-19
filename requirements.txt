@@ -10,3 +10,4 @@ pytz
 orjson
 hypercorn
 yt-dlp
+toml

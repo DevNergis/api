@@ -1,18 +1,24 @@
+import base64
+import hashlib
+import hmac
+import random
+import secrets
+import zlib
 from datetime import *
-import dotenv
+from typing import *
+
 import orjson
 import redis.asyncio as redis
+import toml
 from pytz import timezone
-from typing import *
-import hashlib
-import secrets
-import hmac
-import base64
-import zlib
-import random
 
 
 def generate_user_agent():
+    """Random User-Agent
+
+    Returns:
+        User-Agent
+    """
     user_agents = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36",
@@ -59,27 +65,29 @@ def generate_user_agent():
     return random.choice(user_agents)
 
 
-FILE_PATH = dotenv.get_key(".env", "FILE_PATH")
-OPEN_NEIS_API_KEY = dotenv.get_key(".env", "OPEN_NEIS_API_KEY")
-YDL_OPTIONS = dotenv.get_key(".env", "YDL_OPTIONS")
 HEADERS = headers = {"User-Agent": generate_user_agent()}
-SERVER_URL = dotenv.get_key(".env", "SERVER_URL")
 DATE = datetime.now(timezone("Asia/Seoul")).strftime("%Y%m%d")
 N_DATE = (datetime.now(timezone("Asia/Seoul")) + timedelta(days=1)).strftime("%Y%m%d")
 DATE_QLOAT = datetime.now()
-QLOAT_PASSWORD = dotenv.get_key(".env", "QLOAT_PASSWORD")
-FILE_PATH_QLOAT = dotenv.get_key(".env", "FILE_PATH_QLOAT")
-FOLDER_PATH = dotenv.get_key(".env", "FOLDER_PATH")
+YDL_OPTIONS = {'netrc':'$HOME/.netrc', 'format':'bestaudio/best', 'audio_format':'flac', 'audio_quality':'0', 'extract_audio':'True', 'noplaylist':'True', 'no_warnings':'True'}
 
-DB = dotenv.get_key(".env", "DB")
-FILE_DB = dotenv.get_key(".env", "FILE_DB")
-PASSWORD_DB = dotenv.get_key(".env", "PASSWORD_DB")
+# Load the TOML configuration file
+config = toml.load("config.toml")
 
-FOLDER_DB = dotenv.get_key(".env", "FOLDER_DB")
-SALT_DB = dotenv.get_key(".env", "SALT_DB")
-
-x_agent_did = dotenv.get_key(".env", "x-agent-did")
-Authorization = dotenv.get_key(".env", "Authorization")
+# Access the configuration values
+FILE_PATH = config["File"]["FILE_PATH"]
+OPEN_NEIS_API_KEY = config["Key"]["OPEN_NEIS_API_KEY"]
+SERVER_URL = config["Env"]["SERVER_URL"]
+QLOAT_PASSWORD = config["Key"]["QLOAT_PASSWORD"]
+FILE_PATH_QLOAT = config["File"]["FILE_PATH_QLOAT"]
+FOLDER_PATH = config["File"]["FOLDER_PATH"]
+DB = config["DB"]["URL"]
+FILE_DB = config["DB"]["FILE_DB"]
+PASSWORD_DB = config["DB"]["PASSWD_DB"]
+FOLDER_DB = config["DB"]["FOLDER_DB"]
+SALT_DB = config["DB"]["SALT_DB"]
+x_agent_did = config["Key"]["x-agent-did"]
+Authorization = config["Key"]["Authorization"]
 
 
 class Security:

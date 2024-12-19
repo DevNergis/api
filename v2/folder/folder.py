@@ -1,26 +1,41 @@
-import hashlib
-from uu import decode
-import uuid
-import aiofiles
-import fastapi.responses
-from typing import *
-from fastapi import *
-from redis.commands.json.path import Path
-from src import function
-from src import schema
-import redis.asyncio as aioredis
+"""Folder v2"""
 
+import hashlib
+import uuid
+from typing import List, Optional
+import aiofiles
+import redis.asyncio as aioredis
+from fastapi import (
+    APIRouter,
+    File,
+    HTTPException,
+    UploadFile,
+    status,
+    responses,
+    Header,
+)
+from redis.commands.json.path import Path
+
+from src import function, schema
 
 router = APIRouter(
     prefix="/folder", tags=["folder"], default_response_class=responses.ORJSONResponse
 )
 
-folder_password = fastapi.Header(default=None)
-folder_admin_password = fastapi.Header(default=None)
+folder_password = Header(default=None)
+folder_admin_password = Header(default=None)
 
 
 @router.post("/make")
 async def folder_make(body: schema.FolderMake):
+    """Folder Make
+
+    Args:
+        body (schema.FolderMake): _description_
+
+    Returns:
+        _type_: _description_
+    """
     DB = await aioredis.Redis(connection_pool=function.pool(function.FOLDER_DB))
 
     folder_uuid = function.Obfuscation(str(uuid.uuid4())).on()
@@ -145,6 +160,16 @@ async def folder_upload(
     files: List[UploadFile] = File(),
     X_A_Passwd: str = folder_admin_password,
 ):
+    """Folder Upload
+
+    Args:
+        folder_id (str): _description_
+        files (List[UploadFile], optional): _description_. Defaults to File().
+        X_A_Passwd (str, optional): _description_. Defaults to folder_admin_password.
+
+    Returns:
+        _type_: _description_
+    """
     file_uuid_list: list = []
 
     DB = aioredis.Redis(connection_pool=function.pool(function.FOLDER_DB))
@@ -208,6 +233,16 @@ async def folder_upload(
 async def folder_download(
     folder_id: str, file_uuid: str, X_F_Passwd: Optional[str] = folder_password
 ):
+    """Folder Download
+
+    Args:
+        folder_id (str): _description_
+        file_uuid (str): _description_
+        X_F_Passwd (Optional[str], optional): _description_. Defaults to folder_password.
+
+    Returns:
+        _type_: _description_
+    """
     file_name: str = ""
     file_list_data: dict = {}
 
@@ -235,7 +270,7 @@ async def folder_download(
         if file_name == "":
             return HTTPException(404, "파일이 존제하지 않습니다!")
 
-        return fastapi.responses.FileResponse(
+        return responses.FileResponse(
             f"{function.FOLDER_PATH}/{file_list_data['file_uuid']}", filename=file_name
         )
 
@@ -250,7 +285,7 @@ async def folder_download(
             if file_name == "":
                 return HTTPException(404, "파일이 존제하지 않습니다!")
 
-            return fastapi.responses.FileResponse(
+            return responses.FileResponse(
                 f"{function.FOLDER_PATH}/{file_list_data['file_uuid']}",
                 filename=file_name,
             )
