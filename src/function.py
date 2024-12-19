@@ -69,7 +69,15 @@ HEADERS = headers = {"User-Agent": generate_user_agent()}
 DATE = datetime.now(timezone("Asia/Seoul")).strftime("%Y%m%d")
 N_DATE = (datetime.now(timezone("Asia/Seoul")) + timedelta(days=1)).strftime("%Y%m%d")
 DATE_QLOAT = datetime.now()
-YDL_OPTIONS = {'netrc':'$HOME/.netrc', 'format':'bestaudio/best', 'audio_format':'flac', 'audio_quality':'0', 'extract_audio':'True', 'noplaylist':'True', 'no_warnings':'True'}
+YDL_OPTIONS = {
+    "netrc": "$HOME/.netrc",
+    "format": "bestaudio/best",
+    "audio_format": "flac",
+    "audio_quality": "0",
+    "extract_audio": "True",
+    "noplaylist": "True",
+    "no_warnings": "True",
+}
 
 # Load the TOML configuration file
 config = toml.load("config.toml")
