@@ -24,6 +24,37 @@ async def file_download(
     file: Union[str, None] = None,
     password: Union[str, None] = Security(password_header),
 ):
+    """
+    Handles the file download endpoint to serve files securely, with additional
+    provisions for password protection and support for HTTP Range requests.
+
+    :param request: The request object representing the client's HTTP request.
+                    Used to extract headers and metadata necessary for file
+                    streaming or download verification.
+    :type request: Request
+
+    :param file_id: Unique identifier for the requested file to be served.
+                    This ID is used to locate or fetch the file metadata from
+                    the Redis database.
+    :type file_id: str
+
+    :param file: Optional name of the file provided by the client.
+                 Used for setting the filename in the response for direct
+                 downloads when the `Range` header is not specified.
+    :type file: Union[str, None]
+
+    :param password: Password for file access, extracted securely via the
+                     password_header dependency. If the file is password-
+                     protected, this parameter is validated against the stored
+                     version.
+    :type password: Union[str, None]
+
+    :return: A StreamingResponse or FileResponse object if the file download
+             is successful or matches the requested range. May also return
+             an HTMLResponse with an error message in case of missing or
+             incorrect credentials.
+    :rtype: Union[Response, FileResponse, HTMLResponse, HTTPException]
+    """
     try:
         redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
         password_db = await redis_file_db_password.get(file_id)
@@ -92,9 +123,25 @@ async def file_download(
 # noinspection PyShadowingNames,PyUnboundLocalVariable
 @router.post("/upload")
 async def file_upload(
-    files: List[UploadFile] = File(),
-    password: Union[str, None] = Security(password_header),
-):
+        files: List[UploadFile] = File(),
+        password: Union[str, None] = Security(password_header),
+) -> ORJSONResponse:
+    """
+    Handles the upload of files and stores related metadata. This function allows users to upload multiple
+    files asynchronously, and optionally secures the files with a password. For every file, metadata such as
+    unique identifier (UUID), size, encoded file name, and downloadable URLs are generated and returned in
+    the response. The files and their corresponding metadata are saved to the file system and a Redis
+    database. If a password is provided, it is also stored securely in a Redis database after encoding.
+
+    :param files: The list of files to upload. Each file should be of type UploadFile.
+    :type files: List[UploadFile]
+    :param password: Optional security password to protect the files. Defaults to None.
+    :type password: Union[str, None]
+    :return: An ORJSONResponse containing the status and metadata for the uploaded files. The JSON
+    includes fields: password status, file sizes, file UUIDs, file names, direct download URLs,
+    and encoded URLs for each uploaded file.
+    :rtype: ORJSONResponse
+    """
     file_size_list = list()
     file_uuid_list = list()
     file_name_list = list()

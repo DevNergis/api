@@ -24,6 +24,25 @@ async def file_download(
     file: Union[str, None] = None,
     password: Union[str, None] = Security(password_header),
 ):
+    """
+    Handles the file download request using the provided file ID. The endpoint supports optional
+    authentication using a password and allows downloading the whole file or a specific byte
+    range if requested in the headers. The function retrieves file metadata and content from
+    Redis databases and serves the requested file or chunk of a file. If access is restricted,
+    a password is required for download.
+
+    :param request: The incoming HTTP request object, which includes headers used for range requests.
+    :type request: Request
+    :param file_id: The unique identifier of the file to be downloaded.
+    :type file_id: str
+    :param file: The provided file name to be used in the response, if specified. Defaults to None.
+    :type file: Union[str, None]
+    :param password: The password provided in the request headers for access, if applicable. Defaults to None.
+    :type password: Union[str, None]
+    :return: A file or a byte range of a file as a response, or an error message if the operation
+             fails due to authentication or range issues.
+    :rtype: Union[FileResponse, Response, HTMLResponse]
+    """
     try:
         redis_file_db_password = redis.Redis(connection_pool=pool(PASSWORD_DB))
         password_db = await redis_file_db_password.get(file_id)
@@ -95,6 +114,18 @@ async def file_upload(
     files: List[UploadFile] = File(),
     password: Union[str, None] = Security(password_header),
 ):
+    """
+    Handles the file upload process allowing multiple files to be securely uploaded. Each file is assigned a unique
+    identifier (UUID) and optionally protected with a password. The endpoint accepts files and a password
+    from the user, processes the files by saving them locally, and stores any relevant information in the
+    Redis database. Generates URLs enabling either direct or optional secure access to the uploaded files.
+
+    :param files: List of files to upload. Each file is represented as an `UploadFile`.
+    :param password: Optional password to protect access to the uploaded files, retrieved securely from
+        the request header.
+    :return: Returns an ORJSONResponse containing details related to the uploaded files including their
+        sizes, UUIDs, names, URLs for access, and direct file access URLs.
+    """
     file_size_list = list()
     file_uuid_list = list()
     file_name_list = list()
