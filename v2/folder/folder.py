@@ -36,22 +36,22 @@ async def folder_make(body: schema.FolderMake):
     Returns:
         _type_: _description_
     """
-    DB = await aioredis.Redis(connection_pool=function.pool(function.FOLDER_DB))
+    db = await aioredis.Redis(connection_pool=function.pool(function.FOLDER_DB))
 
     folder_uuid = function.Obfuscation(str(uuid.uuid4())).on()
     key = hashlib.md5(body.folder_name.encode() + folder_uuid.encode()).hexdigest()
     folder_name = function.Obfuscation(body.folder_name).on()
 
     if body.folder_password is None:
-        DB_SALT = aioredis.Redis(connection_pool=function.pool(function.SALT_DB))
+        db_salt = aioredis.Redis(connection_pool=function.pool(function.SALT_DB))
 
         folder_password_hash = None
 
-        folder_admin_key_salt, folder_admin_key_hash = function.Security(
+        folder_admin_key_salt, folder_admin_key_hash = function.HashingUtility(
             body.folder_admin_password, to_hex=True
         ).hash_new_password()
 
-        await DB_SALT.json().set(
+        await db_salt.json().set(
             folder_uuid,
             Path.root_path(),
             {
@@ -59,18 +59,18 @@ async def folder_make(body: schema.FolderMake):
                 "folder_admin_key_salt": folder_admin_key_salt,
             },
         )
-        await DB_SALT.close()
+        await db_salt.close()
     else:
-        DB_SALT = aioredis.Redis(connection_pool=function.pool(function.SALT_DB))
+        db_salt = aioredis.Redis(connection_pool=function.pool(function.SALT_DB))
 
-        folder_password_salt, folder_password_hash = function.Security(
+        folder_password_salt, folder_password_hash = function.HashingUtility(
             body.folder_password, to_hex=True
         ).hash_new_password()
-        folder_admin_key_salt, folder_admin_key_hash = function.Security(
+        folder_admin_key_salt, folder_admin_key_hash = function.HashingUtility(
             body.folder_admin_password, to_hex=True
         ).hash_new_password()
 
-        await DB_SALT.json().set(
+        await db_salt.json().set(
             folder_uuid,
             Path.root_path(),
             {
@@ -78,9 +78,9 @@ async def folder_make(body: schema.FolderMake):
                 "folder_admin_key_salt": folder_admin_key_salt,
             },
         )
-        await DB_SALT.close()
+        await db_salt.close()
 
-    await DB.set(
+    await db.set(
         key,
         await function.aiorjson.dumps(
             {
@@ -92,7 +92,7 @@ async def folder_make(body: schema.FolderMake):
             }
         ),
     )
-    await DB.close()
+    await db.close()
 
     return {
         "folder_id": key,
@@ -102,17 +102,17 @@ async def folder_make(body: schema.FolderMake):
 
 
 @router.get("/{folder_id}")
-async def folder_open(folder_id: str, X_F_Passwd: Optional[str] = folder_password):
+async def folder_open(folder_id: str, x_f_passwd: Optional[str] = folder_password):
     decoded_file_list: list = []
 
-    DB = aioredis.Redis(connection_pool=function.pool(function.FOLDER_DB))
-    DB_SALT = aioredis.Redis(connection_pool=function.pool(function.SALT_DB))
+    db = aioredis.Redis(connection_pool=function.pool(function.FOLDER_DB))
+    db_salt = aioredis.Redis(connection_pool=function.pool(function.SALT_DB))
 
-    json_value = await function.aiorjson.loads(await DB.get(folder_id))
-    salt_json_value = await DB_SALT.json().get(json_value["folder_uuid"])
+    json_value = await function.aiorjson.loads(await db.get(folder_id))
+    salt_json_value = await db_salt.json().get(json_value["folder_uuid"])
 
-    await DB.close()
-    await DB_SALT.close()
+    await db.close()
+    await db_salt.close()
 
     file_list: list = json_value["folder_contents"]
 
@@ -134,8 +134,8 @@ async def folder_open(folder_id: str, X_F_Passwd: Optional[str] = folder_passwor
         return {"folder_contents": decoded_file_list}
 
     try:
-        if function.Security(
-            X_F_Passwd, folder_key_salt, folder_key_hash
+        if function.HashingUtility(
+            x_f_passwd, folder_key_salt, folder_key_hash
         ).is_correct_password():
             for file_data in file_list:
                 decoded_file_list.append(
@@ -189,7 +189,7 @@ async def folder_upload(
     ).hexoff()
 
     try:
-        if function.Security(
+        if function.HashingUtility(
             X_A_Passwd, folder_admin_key_salt, folder_admin_key_hash
         ).is_correct_password():
             for file in files:
@@ -275,7 +275,7 @@ async def folder_download(
         )
 
     try:
-        if function.Security(
+        if function.HashingUtility(
             X_F_Passwd, folder_key_salt, folder_key_hash
         ).is_correct_password():
             for file_list_data in file_list:

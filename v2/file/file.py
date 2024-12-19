@@ -1,17 +1,15 @@
-import base64
-import uuid
 import os
-from xml.etree.ElementPath import iterfind
-from redis.asyncio import Redis
-from fastapi import *
-from fastapi.responses import *
-from src.function import *
+import uuid
+
 import aiofiles
+from fastapi import *
+from fastapi import Security, HTTPException
+from fastapi.responses import *
 from fastapi.security.api_key import APIKeyHeader
-from fastapi import Security, Request, HTTPException
-from fastapi.responses import FileResponse
+from redis.asyncio import Redis
 
 from main import *
+from src.function import *
 
 router = APIRouter(prefix="/file", tags=["file"])
 

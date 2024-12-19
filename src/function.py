@@ -98,7 +98,7 @@ x_agent_did = config["Key"]["x-agent-did"]
 Authorization = config["Key"]["Authorization"]
 
 
-class Security:
+class HashingUtility:
     def __init__(
         self,
         password: str,
