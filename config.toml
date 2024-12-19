@@ -2,9 +2,9 @@
 SERVER_URL = "https://api.nergis.dev"
 
 [File]
-FILE_PATH = "/workspaces/api/tf"
-FILE_PATH_QLOAT = "asdfasdf"
-FOLDER_PATH = "/workspaces/api/tf"
+FILE_PATH = "/DATA/file"
+FILE_PATH_QLOAT = "/DATA/qloat"
+FOLDER_PATH = "/DATA/folder"
 
 [Key]
 OPEN_NEIS_API_KEY = "4e1af35dc1954eb8aaf573eff8653c43"
@@ -13,7 +13,7 @@ Authorization = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXR
 QLOAT_PASSWORD = "test"
 
 [DB]
-URL = "redis://default@localhost:6379"
+URL = "redis://default@api-redis:6379"
 FILE_DB = 0
 PASSWD_DB = 1
 FOLDER_DB = 2

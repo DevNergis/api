@@ -1,13 +1,36 @@
-﻿name: api.nergis.dev
+﻿name: api
+
 services:
-  api.nergis.dev:
-    stdin_open: true
-    tty: true
+  api:
+    container_name: api
+    image: ghcr.io/devnergis/api:main
     ports:
-      - 2002:2002
+      - "8000:8000"
+    depends_on:
+      - redis
+    networks:
+      - api-network
+    env_file:
+      - .env
     volumes:
-      - /mnt/sqlare/api-attachments/v1-file:/mnt/sqlare/api-attachments/v1-file
-      - /mnt/sqlare/api-attachments/v1-file/qloat:/mnt/sqlare/api-attachments/v1-file/qloat
-      - /mnt/sqlare/api-attachments/v2/folder:/mnt/sqlare/api-attachments/v2/folder
-    container_name: api.nergis.dev
-    image: api.nergis.dev:latest
+      - ${FILE_PATH}:/DATA
+      - ./config.toml:/config.toml
+    restart: always
+    healthcheck:
+      disable: false
+  
+  redis:
+    container_name: api-redis
+    image: redis/redis-stack-server:latest
+    networks:
+      - api-network
+    env_file:
+      - .env
+    volumes:
+      - ${DB_PATH}:/data
+    healthcheck:
+      test: redis-cli ping || exit 1
+    restart: always
+
+networks:
+  api-network:
