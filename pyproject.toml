@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "api"
+version = "7.4.0"
+description = "a api for api.nergis.dev"
+authors = ["Dev_Nergis <136839304+DevNergis@users.noreply.github.com>"]
+license = "AGPL-3.0 license"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["all"], version = "^0.115.6"}
+redis = "^5.2.1"
+requests = "^2.32.3"
+aiohttp = {extras = ["speedups"], version = "^3.11.11"}
+aiofiles = "^24.1.0"
+pydantic = "^2.10.4"
+python-dotenv = "^1.0.1"
+pytz = "^2024.2"
+orjson = "^3.10.12"
+hypercorn = "^0.17.3"
+yt-dlp = "^2024.12.13"
+toml = "^0.10.2"
+pylint = "^3.3.2"
+black = "^24.10.0"
+isort = "^5.13.2"
+mypy = "^1.13.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

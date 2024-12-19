@@ -11,3 +11,7 @@ orjson
 hypercorn
 yt-dlp
 toml
+pylint
+black
+isort
+mypy
