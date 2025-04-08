@@ -1,8 +1,10 @@
-FROM python
+FROM ghcr.io/astral-sh/uv:alpine
+
+WORKDIR /app
 
 COPY . .
 
-RUN pip install -r requirements.txt
+RUN uv sync --frozen --no-cache
 
 EXPOSE 8000
-CMD fastapi run
+CMD ["uv", "run", "fastapi", "run"]
