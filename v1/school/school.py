@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from fastapi.responses import ORJSONResponse
 from src.function import *
 from src.schema import SchemaMealInfo, SchemaClassTimeInfo

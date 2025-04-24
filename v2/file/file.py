@@ -123,8 +123,8 @@ async def file_download(
 # noinspection PyShadowingNames,PyUnboundLocalVariable
 @router.post("/upload")
 async def file_upload(
-        files: List[UploadFile] = File(),
-        password: Union[str, None] = Security(password_header),
+    files: List[UploadFile] = File(),
+    password: Union[str, None] = Security(password_header),
 ) -> ORJSONResponse:
     """
     Handles the upload of files and stores related metadata. This function allows users to upload multiple

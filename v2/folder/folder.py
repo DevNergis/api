@@ -267,7 +267,7 @@ async def folder_upload(
 # noinspection DuplicatedCode,PyPep8Naming
 @router.get("/{folder_id}/{file_uuid}")
 async def folder_download(
-        folder_id: str, file_uuid: str, X_F_Passwd: Optional[str] = folder_password
+    folder_id: str, file_uuid: str, X_F_Passwd: Optional[str] = folder_password
 ) -> Union[responses.FileResponse, HTTPException]:
     """
     Handles the download of files from a folder. This endpoint retrieves folder and file
